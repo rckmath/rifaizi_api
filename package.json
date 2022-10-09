@@ -1,0 +1,75 @@
+{
+  "name": "rifaizi_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "jest",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .ts",
+    "start": "node dist/index.js",
+    "start:migrate": "npm run migrate && npm run start",
+    "test:watch": "jest --watch --verbose",
+    "generate": "npx prisma generate",
+    "migrate": "npx prisma migrate deploy",
+    "migrate:dev": "npx prisma migrate dev",
+    "lint:fix": "eslint ./src ./test --ext .ts --fix",
+    "dev": "npm run generate && npm run migrate && nodemon -L src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rckmath/rifazi_api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rckmath/rifaizi_api/issues"
+  },
+  "homepage": "https://github.com/rckmath/rifaizi_api#readme",
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^9.1.7",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.14",
+    "@types/jest": "^29.1.1",
+    "@types/module-alias": "^2.0.1",
+    "@types/node": "^18.8.1",
+    "@types/supertest": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "eslint": "^8.24.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.1",
+    "jest": "^29.1.2",
+    "lint-staged": "^13.0.3",
+    "nodemon": "^2.0.20",
+    "prisma": "^4.4.0",
+    "prisma-erd-generator": "^1.2.1",
+    "supertest": "^6.3.0",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.1",
+    "firebase-admin": "^11.0.1",
+    "helmet": "^6.0.0",
+    "inversify": "^6.0.1",
+    "inversify-express-utils": "^6.4.3",
+    "jest-mock-extended": "^3.0.1",
+    "module-alias": "^2.2.2",
+    "reflect-metadata": "^0.1.13"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "npm i eslint",
+      "npm i prettier --write",
+      "npm run test --watchAll=false --findRelatedTests --bail"
+    ]
+  }
+}

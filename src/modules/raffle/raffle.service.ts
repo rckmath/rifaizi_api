@@ -1,0 +1,44 @@
+import { inject, injectable } from 'inversify';
+
+import { IRaffleRepository, IRaffleService } from './raffle.interface';
+import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleUpdateDto } from './dtos';
+
+import { TYPES } from '@shared/ioc/types.ioc';
+import { NotFoundException } from '@shared/errors';
+
+@injectable()
+export class RaffleService implements IRaffleService {
+  constructor(@inject(TYPES.IRaffleRepository) private readonly _repository: IRaffleRepository) {}
+
+  async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
+    const response = await this._repository.create(raffle);
+    return this.findOne({ id: response.id });
+  }
+
+  async findOne(raffle: RaffleFindOneDto): Promise<RaffleDto> {
+    const foundRaffle = await this._repository.findOne(raffle.id as string);
+    if (!foundRaffle) throw new NotFoundException('Raffle');
+    return RaffleDto.from(foundRaffle);
+  }
+
+  async findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>> {
+    const foundRaffles = await this._repository.find(searchParameters);
+    return RaffleDto.fromMany(foundRaffles);
+  }
+
+  async count(searchParameters: RaffleFindManyDto): Promise<number> {
+    return this._repository.count(searchParameters);
+  }
+
+  async updateOne(raffle: RaffleUpdateDto): Promise<void> {
+    await this.findOne({ id: raffle.id });
+    return this._repository.update(raffle.id, raffle);
+  }
+
+  async delete(raffle: RaffleDeleteDto): Promise<void> {
+    const idList = raffle.id as Array<string>;
+    let raffleList = [];
+    raffleList = await Promise.all(idList.map(async (id) => this._repository.findOne(id)));
+    if (raffleList.length) await this._repository.delete(idList);
+  }
+}

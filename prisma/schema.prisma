@@ -1,0 +1,107 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "filteredRelationCount"]
+  binaryTargets   = ["native", "linux-musl"]
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String @id @default(uuid()) @db.Char(36)
+  firebaseId String @unique
+
+  email String       @unique @db.VarChar(320)
+  name  String       @db.VarChar(100)
+  role  UserRoleType @default(COMMON)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  raffles        Raffle[]
+  paymentOptions PaymentOption[]
+}
+
+model Raffle {
+  id      String @id @default(uuid()) @db.Char(36)
+  ownerId String @db.Char(36)
+
+  title       String
+  description String
+  prize       String
+
+  remindMe Boolean @default(false)
+
+  status RaffleStatus @default(CREATED)
+
+  price         Decimal @db.Decimal(10, 2)
+  fundingTarget Decimal @db.Decimal(10, 2)
+  optionsQty    Int
+
+  finishedAt           DateTime?
+  prizeDrawAt          DateTime?
+  startParticipationDt DateTime?
+  limitParticipationDt DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  paymentOptions RafflePaymentOption[]
+
+  owner User @relation(fields: [ownerId], references: [id])
+}
+
+model RafflePaymentOption {
+  id              String @id @default(uuid()) @db.Char(36)
+  userId          String @db.Char(36)
+  raffleId        String @db.Char(36)
+  paymentOptionId String @db.Char(36)
+
+  raffle        Raffle        @relation(fields: [raffleId], references: [id])
+  paymentOption PaymentOption @relation(fields: [paymentOptionId], references: [id])
+}
+
+model PaymentOption {
+  id      String @id @default(uuid()) @db.Char(36)
+  ownerId String @db.Char(36)
+
+  key     String
+  type    PaymentType @default(PIX)
+  default Boolean     @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  raffles RafflePaymentOption[]
+
+  owner User @relation(fields: [ownerId], references: [id])
+}
+
+enum RaffleStatus {
+  CREATED
+  IN_PROGRESS
+  TO_DRAW
+  DRAWN
+  DELIVERED
+  CANCELED
+}
+
+enum PaymentType {
+  PIX
+  BANK_ACCOUNT
+  OTHER
+}
+
+enum UserRoleType {
+  COMMON
+  ADMIN
+}

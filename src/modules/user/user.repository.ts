@@ -1,0 +1,83 @@
+import { injectable } from 'inversify';
+
+import { db as _db } from '@database/index';
+
+import { IUserRepository, IUser } from './user.interface';
+import { UserCreateDto, UserFindManyDto, UserFindOneDto, UserUpdateDto } from './dtos';
+
+@injectable()
+export class UserRepository implements IUserRepository {
+  async create(item: UserCreateDto): Promise<IUser> {
+    return _db.user.create({
+      data: {
+        name: item.name,
+        email: item.email,
+        firebaseId: item.firebaseId as string,
+        role: item.role,
+      },
+    });
+  }
+
+  async update(id: string, item: UserUpdateDto): Promise<void> {
+    await _db.user.update({
+      where: { id },
+      data: {
+        name: item.name,
+        email: item.email,
+        role: item.role ?? undefined,
+      },
+    });
+  }
+
+  async delete(idList: Array<string>): Promise<void> {
+    await _db.user.deleteMany({ where: { id: { in: idList } } });
+  }
+
+  async find(searchParameters: UserFindManyDto): Promise<Array<IUser>> {
+    return _db.user.findMany({
+      skip: searchParameters.paginate ? searchParameters.skip : undefined,
+      take: searchParameters.paginate ? searchParameters.pageSize : undefined,
+      orderBy: {
+        [`${searchParameters.orderBy}`]: searchParameters.orderDescending ? 'desc' : 'asc',
+      },
+      where: {
+        name: { contains: searchParameters.name },
+        email: { contains: searchParameters.email },
+        id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+        role: { in: searchParameters.role?.length ? searchParameters.role : undefined },
+        createdAt: {
+          gte: searchParameters.fromDate,
+          lte: searchParameters.toDate,
+        },
+      },
+    });
+  }
+
+  async count(searchParameters: UserFindManyDto): Promise<number> {
+    return _db.user.count({
+      orderBy: {
+        [`${searchParameters.orderBy}`]: searchParameters.orderDescending ? 'desc' : 'asc',
+      },
+      where: {
+        name: { contains: searchParameters.name },
+        email: { contains: searchParameters.email },
+        id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+        role: { in: searchParameters.role?.length ? searchParameters.role : undefined },
+        createdAt: {
+          gte: searchParameters.fromDate,
+          lte: searchParameters.toDate,
+        },
+      },
+    });
+  }
+
+  async findOne(item: UserFindOneDto): Promise<IUser | null> {
+    return _db.user.findUnique({
+      where: {
+        id: item.id,
+        email: item.email,
+        firebaseId: item.firebaseId,
+      },
+    });
+  }
+}
