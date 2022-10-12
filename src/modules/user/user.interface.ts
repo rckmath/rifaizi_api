@@ -9,7 +9,8 @@ export interface IAuth {
 }
 
 export interface IAuthOptions {
-  setUserIdInBody: boolean,
+  setUserIdInBody?: boolean,
+  allowNoLoginRequest?: boolean,
 }
 
 export interface IUser {

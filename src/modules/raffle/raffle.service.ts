@@ -5,6 +5,7 @@ import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleF
 
 import { TYPES } from '@shared/ioc/types.ioc';
 import { NotFoundException } from '@shared/errors';
+import { UserRoleType } from '@modules/user/user.enum';
 
 @injectable()
 export class RaffleService implements IRaffleService {
@@ -22,8 +23,11 @@ export class RaffleService implements IRaffleService {
   }
 
   async findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>> {
+    let removeSensitiveData = true;
     const foundRaffles = await this._repository.find(searchParameters);
-    return RaffleDto.fromMany(foundRaffles);
+    const reqAuthData = searchParameters.reqAuthData;
+    if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) removeSensitiveData = false;
+    return RaffleDto.fromMany(foundRaffles, removeSensitiveData);
   }
 
   async count(searchParameters: RaffleFindManyDto): Promise<number> {
