@@ -1,6 +1,7 @@
 import { InvalidFieldException } from '@shared/errors';
 import { BaseFindManyDto } from '@http/dto';
 import { arraySplitter, isValidUUID, stringToNumber } from '@shared/utils';
+import { IAuth } from '@user/user.interface';
 
 export default class RaffleFindManyDto extends BaseFindManyDto {
   constructor(
@@ -10,13 +11,14 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     orderDescending?: boolean,
     fromDate?: Date,
     toDate?: Date,
+    reqAuthData?: IAuth,
     public paginate: boolean = true,
     public includeDetails: boolean = false,
     public readonly title?: string,
     public id?: string | Array<string>,
     public ownerId?: string | Array<string>
   ) {
-    super(page, pageSize, orderBy, orderDescending, fromDate, toDate);
+    super(page, pageSize, orderBy, orderDescending, fromDate, toDate, reqAuthData);
   }
 
   static from(body: Partial<RaffleFindManyDto>) {
@@ -35,6 +37,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     });
     body.fromDate = body.fromDate && new Date(body.fromDate);
     body.toDate = body.toDate && new Date(body.toDate);
+
     return new RaffleFindManyDto(
       body.page,
       body.pageSize,
@@ -42,6 +45,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
       body.orderDescending,
       body.fromDate,
       body.toDate,
+      body.reqAuthData,
       body.paginate,
       body.includeDetails,
       body.title,

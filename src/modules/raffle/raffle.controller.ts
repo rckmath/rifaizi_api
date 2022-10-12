@@ -15,14 +15,7 @@ import {
 import { TYPES } from '@shared/ioc/types.ioc';
 
 import { IRaffleService } from './raffle.interface';
-import {
-  RaffleCreateDto,
-  RaffleFindOneDto,
-  RaffleDeleteDto,
-  RaffleFindManyDto,
-  RaffleDto,
-  RaffleUpdateDto,
-} from './dtos';
+import { RaffleCreateDto, RaffleFindOneDto, RaffleDeleteDto, RaffleFindManyDto, RaffleDto, RaffleUpdateDto } from './dtos';
 
 import { BaseHttpResponse, Request, Validate } from '@http/api';
 import { BasePaginationDto } from '@http/dto';
@@ -41,16 +34,14 @@ export class RaffleController extends BaseHttpController implements Controller {
     return res.json(response);
   }
 
-  @httpGet('/', AuthMiddleware.validateToken(), Validate.withQuery(RaffleFindManyDto))
+  @httpGet('/', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withQuery(RaffleFindManyDto))
   public async getWithPagination(@request() req: Request, @response() res: express.Response) {
     let response;
     const [raffles, raffleCount] = await Promise.all([
       this._raffleService.findMany(req.body),
       req.body.paginate ? this._raffleService.count(req.body) : undefined,
     ]);
-    response = req.body.paginate
-      ? new BasePaginationDto<RaffleDto>(raffleCount, parseInt(req.body.page), raffles)
-      : raffles;
+    response = req.body.paginate ? new BasePaginationDto<RaffleDto>(raffleCount, parseInt(req.body.page), raffles) : raffles;
     response = BaseHttpResponse.success(response);
 
     return res.json(response);

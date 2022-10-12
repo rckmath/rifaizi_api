@@ -39,14 +39,15 @@ export default class AuthMiddleware extends BaseMiddleware {
 
         if (this.options?.setUserIdInBody) req.body.userId = auth.userId;
 
-        req.body.auth = auth;
+        req.body.reqAuthData = auth;
       } catch (err: any) {
         throw new AuthenticationException(JSON.stringify(err));
       }
 
       next();
     } catch (err) {
-      next(err);
+      if (this.options?.allowNoLoginRequest) next();
+      else next(err);
     }
   }
 
