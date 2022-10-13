@@ -5,6 +5,7 @@ import { RaffleStatus } from '../raffle.enum';
 export default class RaffleUpdateDto {
   constructor(
     public readonly id: string,
+    public readonly ownerId?: string,
     public readonly title?: string,
     public readonly description?: string,
     public readonly prize?: string,
@@ -22,10 +23,12 @@ export default class RaffleUpdateDto {
   static from(body: Partial<RaffleUpdateDto>) {
     if (!body.id) throw new MissingFieldException('id');
     if (body.id && !isValidUUID(body.id)) throw new InvalidFieldException('id', body.id);
+    if (body.ownerId && !isValidUUID(body.ownerId)) throw new InvalidFieldException('ownerId', body.ownerId);
     if (body.optionsQty) body.optionsQty = parseInt(body.optionsQty as unknown as string, 10);
 
     return new RaffleUpdateDto(
       body.id,
+      body.ownerId,
       body.title,
       body.description,
       body.prize,

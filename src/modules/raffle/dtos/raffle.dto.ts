@@ -24,7 +24,7 @@ export default class RaffleDto {
     public readonly ownerName?: string | null
   ) {}
 
-  static from(raffle: IRaffle) {
+  static from(raffle: IRaffle, reqUserId?: string) {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
     const ownerName = owner?.name;
 
@@ -45,7 +45,7 @@ export default class RaffleDto {
       raffle.limitParticipationDt,
       raffle.createdAt,
       raffle.updatedAt,
-      null,
+      reqUserId === owner?.id ? owner : null,
       ownerName
     );
   }
@@ -76,7 +76,7 @@ export default class RaffleDto {
     );
   }
 
-  static fromMany(raffles: Array<IRaffle>, removeSensitiveData?: boolean) {
-    return raffles.map((raffle) => (removeSensitiveData ? RaffleDto.from(raffle) : RaffleDto.fromAdmin(raffle)));
+  static fromMany(raffles: Array<IRaffle>, removeSensitiveData?: boolean, reqUserId?: string) {
+    return raffles.map((raffle) => (removeSensitiveData ? RaffleDto.from(raffle, reqUserId) : RaffleDto.fromAdmin(raffle)));
   }
 }

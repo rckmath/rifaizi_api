@@ -36,6 +36,7 @@ export class RaffleRepository implements IRaffleRepository {
     await _db.raffle.update({
       where: { id },
       data: {
+        ownerId: item.ownerId,
         title: item.title,
         description: item.description,
         prize: item.prize,
@@ -68,6 +69,8 @@ export class RaffleRepository implements IRaffleRepository {
       where: {
         title: { search: searchParameters.title },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+        ownerId: { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined },
+        status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: {
           gte: searchParameters.fromDate,
           lte: searchParameters.toDate,
@@ -87,6 +90,8 @@ export class RaffleRepository implements IRaffleRepository {
       where: {
         title: { search: searchParameters.title },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+        ownerId: { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined },
+        status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: {
           gte: searchParameters.fromDate,
           lte: searchParameters.toDate,

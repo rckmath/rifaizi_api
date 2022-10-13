@@ -19,7 +19,9 @@ export class RaffleService implements IRaffleService {
   async findOne(raffle: RaffleFindOneDto): Promise<RaffleDto> {
     const foundRaffle = await this._repository.findOne(raffle.id as string);
     if (!foundRaffle) throw new NotFoundException('Raffle');
-    return RaffleDto.from(foundRaffle);
+    const reqAuthData = raffle.reqAuthData;
+    if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) return RaffleDto.fromAdmin(foundRaffle);
+    return RaffleDto.from(foundRaffle, reqAuthData?.userId);
   }
 
   async findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>> {
@@ -27,7 +29,7 @@ export class RaffleService implements IRaffleService {
     const foundRaffles = await this._repository.find(searchParameters);
     const reqAuthData = searchParameters.reqAuthData;
     if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) removeSensitiveData = false;
-    return RaffleDto.fromMany(foundRaffles, removeSensitiveData);
+    return RaffleDto.fromMany(foundRaffles, removeSensitiveData, reqAuthData?.userId);
   }
 
   async count(searchParameters: RaffleFindManyDto): Promise<number> {

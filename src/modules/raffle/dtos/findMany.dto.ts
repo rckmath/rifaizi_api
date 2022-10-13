@@ -2,6 +2,7 @@ import { InvalidFieldException } from '@shared/errors';
 import { BaseFindManyDto } from '@http/dto';
 import { arraySplitter, isValidUUID, stringToNumber } from '@shared/utils';
 import { IAuth } from '@user/user.interface';
+import { RaffleStatus } from '../raffle.enum';
 
 export default class RaffleFindManyDto extends BaseFindManyDto {
   constructor(
@@ -16,7 +17,8 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     public includeDetails: boolean = false,
     public readonly title?: string,
     public id?: string | Array<string>,
-    public ownerId?: string | Array<string>
+    public ownerId?: string | Array<string>,
+    public status?: RaffleStatus | Array<RaffleStatus>
   ) {
     super(page, pageSize, orderBy, orderDescending, fromDate, toDate, reqAuthData);
   }
@@ -24,6 +26,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
   static from(body: Partial<RaffleFindManyDto>) {
     body.id = arraySplitter<string>(body.id);
     body.ownerId = arraySplitter<string>(body.ownerId);
+    body.status = arraySplitter<RaffleStatus>(body.status);
     body.page = stringToNumber(body.page, false, 1, 'page');
     body.pageSize = stringToNumber(body.pageSize, false, 1, 'pageSize');
     body.orderDescending = body.orderDescending && typeof body.orderDescending == 'string' && JSON.parse(body.orderDescending);
@@ -35,6 +38,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     body.ownerId.forEach((x) => {
       if (!isValidUUID(x)) throw new InvalidFieldException('id', x);
     });
+
     body.fromDate = body.fromDate && new Date(body.fromDate);
     body.toDate = body.toDate && new Date(body.toDate);
 
@@ -50,7 +54,8 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
       body.includeDetails,
       body.title,
       body.id,
-      body.ownerId
+      body.ownerId,
+      body.status
     );
   }
 }
