@@ -5,6 +5,7 @@ import { db as _db } from '@database/index';
 import { IRaffleRepository, IRaffle } from './raffle.interface';
 import { Prisma } from '@prisma/client';
 import { RaffleCreateDto, RaffleFindManyDto, RaffleUpdateDto } from './dtos';
+import { RaffleListingFilter } from './raffle.enum';
 
 @injectable()
 export class RaffleRepository implements IRaffleRepository {
@@ -36,6 +37,7 @@ export class RaffleRepository implements IRaffleRepository {
     await _db.raffle.update({
       where: { id },
       data: {
+        ownerId: item.ownerId,
         title: item.title,
         description: item.description,
         prize: item.prize,
@@ -68,10 +70,13 @@ export class RaffleRepository implements IRaffleRepository {
       where: {
         title: { search: searchParameters.title },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
-        createdAt: {
-          gte: searchParameters.fromDate,
-          lte: searchParameters.toDate,
+        ownerId: {
+          ...(searchParameters.listingFilter === RaffleListingFilter.MINE
+            ? { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }
+            : { notIn: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }),
         },
+        status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
+        createdAt: { gte: searchParameters.fromDate, lte: searchParameters.toDate },
       },
       ...(searchParameters.includeDetails && { include: { owner: true } }),
     });
@@ -87,6 +92,12 @@ export class RaffleRepository implements IRaffleRepository {
       where: {
         title: { search: searchParameters.title },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+        ownerId: {
+          ...(searchParameters.listingFilter === RaffleListingFilter.MINE
+            ? { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }
+            : { notIn: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }),
+        },
+        status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: {
           gte: searchParameters.fromDate,
           lte: searchParameters.toDate,

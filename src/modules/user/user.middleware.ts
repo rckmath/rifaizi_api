@@ -1,5 +1,6 @@
 import { inject } from 'inversify';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { Request } from '@http/api';
 
 import { BaseMiddleware } from '@http/api';
 import FirebaseClient from '@infra/firebase';
@@ -39,6 +40,7 @@ export default class AuthMiddleware extends BaseMiddleware {
 
         if (this.options?.setUserIdInBody) req.body.userId = auth.userId;
 
+        req.auth = auth;
         req.body.reqAuthData = auth;
       } catch (err: any) {
         throw new AuthenticationException(JSON.stringify(err));
