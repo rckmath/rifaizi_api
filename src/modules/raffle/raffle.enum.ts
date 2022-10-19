@@ -8,3 +8,10 @@ export const RaffleStatus: { [x: string]: 'CREATED' | 'IN_PROGRESS' | 'TO_DRAW' 
 };
 
 export type RaffleStatus = typeof RaffleStatus[keyof typeof RaffleStatus];
+
+export const RaffleListingFilter: { [x: string]: 'MINE' | 'PARTICIPATING' } = {
+  MINE: 'MINE',
+  PARTICIPATING: 'PARTICIPATING',
+};
+
+export type RaffleListingFilter = typeof RaffleListingFilter[keyof typeof RaffleListingFilter];

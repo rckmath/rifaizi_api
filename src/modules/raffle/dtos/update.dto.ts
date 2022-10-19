@@ -14,10 +14,10 @@ export default class RaffleUpdateDto {
     public readonly price?: number,
     public readonly fundingTarget?: number,
     public optionsQty?: number,
-    public readonly finishedAt?: Date,
-    public readonly prizeDrawAt?: Date,
-    public readonly startParticipationDt?: Date,
-    public readonly limitParticipationDt?: Date
+    public finishedAt?: Date,
+    public prizeDrawAt?: Date,
+    public startParticipationDt?: Date,
+    public limitParticipationDt?: Date
   ) {}
 
   static from(body: Partial<RaffleUpdateDto>) {

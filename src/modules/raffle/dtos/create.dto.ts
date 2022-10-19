@@ -28,8 +28,6 @@ export default class RaffleCreateDto {
     if (!body.optionsQty) throw new MissingFieldException('optionsQty');
     if (body.optionsQty) body.optionsQty = parseInt(body.optionsQty as unknown as string, 10);
 
-    console.log(body.price)
-
     return new RaffleCreateDto(
       body.ownerId,
       body.title,
