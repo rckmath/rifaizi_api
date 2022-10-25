@@ -30,7 +30,9 @@ model User {
 }
 
 model Raffle {
-  id      String @id @default(uuid()) @db.Char(36)
+  id        String @id @default(uuid()) @db.Char(36)
+  numericId Int    @unique @default(autoincrement())
+
   ownerId String @db.Char(36)
 
   title       String
@@ -73,9 +75,12 @@ model PaymentOption {
   id      String @id @default(uuid()) @db.Char(36)
   ownerId String @db.Char(36)
 
-  key     String
-  type    PaymentType @default(PIX)
-  default Boolean     @default(false)
+  alias    String
+  key      String
+  fullName String
+  type     PaymentType     @default(PIX)
+  subType  PaymentSubType?
+  default  Boolean         @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -99,6 +104,13 @@ enum PaymentType {
   PIX
   BANK_ACCOUNT
   OTHER
+}
+
+enum PaymentSubType {
+  CPF_CNPJ
+  RANDOM_KEY
+  PHONE_NUMBER
+  EMAIL
 }
 
 enum UserRoleType {

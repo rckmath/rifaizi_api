@@ -14,55 +14,54 @@ import {
 
 import { TYPES } from '@shared/ioc/types.ioc';
 
-import { IRaffleService } from './raffle.interface';
-import { RaffleCreateDto, RaffleFindOneDto, RaffleDeleteDto, RaffleFindManyDto, RaffleDto, RaffleUpdateDto } from './dtos';
+import { IPaymentOptionService } from './paymentOption.interface';
+import { PaymentOptionCreateDto, PaymentOptionFindOneDto, PaymentOptionDeleteDto, PaymentOptionFindManyDto, PaymentOptionDto, PaymentOptionUpdateDto } from './dtos';
 
 import { BaseHttpResponse, Request, Validate } from '@http/api';
 import { BasePaginationDto } from '@http/dto';
 import AuthMiddleware from '@user/user.middleware';
 
-@controller('/raffle')
-export class RaffleController extends BaseHttpController implements Controller {
-  constructor(@inject(TYPES.IRaffleService) private readonly _raffleService: IRaffleService) {
+@controller('/paymentOption')
+export class PaymentOptionController extends BaseHttpController implements Controller {
+  constructor(@inject(TYPES.IPaymentOptionService) private readonly _raffleService: IPaymentOptionService) {
     super();
   }
 
-  @httpPost('/', AuthMiddleware.validateToken(), Validate.with(RaffleCreateDto))
+  @httpPost('/', AuthMiddleware.validateToken(), Validate.with(PaymentOptionCreateDto))
   public async create(@request() req: Request, @response() res: express.Response) {
-    const createdRaffle = await this._raffleService.createOne(req.body);
-    const response = BaseHttpResponse.success(createdRaffle);
+    const createdPaymentOption = await this._raffleService.createOne(req.body);
+    const response = BaseHttpResponse.success(createdPaymentOption);
     return res.json(response);
   }
 
-  @httpGet('/', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withQuery(RaffleFindManyDto))
+  @httpGet('/', AuthMiddleware.validateToken(), Validate.withQuery(PaymentOptionFindManyDto))
   public async getWithPagination(@request() req: Request, @response() res: express.Response) {
     let response;
     const [raffles, raffleCount] = await Promise.all([
       this._raffleService.findMany(req.body),
       req.body.paginate ? this._raffleService.count(req.body) : undefined,
     ]);
-
-    response = req.body.paginate ? new BasePaginationDto<RaffleDto>(raffleCount, parseInt(req.body.page), raffles) : raffles;
+    response = req.body.paginate ? new BasePaginationDto<PaymentOptionDto>(raffleCount, parseInt(req.body.page), raffles) : raffles;
     response = BaseHttpResponse.success(response);
 
     return res.json(response);
   }
 
-  @httpGet('/:id', AuthMiddleware.validateToken(), Validate.withParams(RaffleFindOneDto))
+  @httpGet('/:id', AuthMiddleware.validateToken(), Validate.withParams(PaymentOptionFindOneDto))
   public async getById(@request() req: Request, @response() res: express.Response) {
     const raffle = await this._raffleService.findOne(req.body);
     const response = BaseHttpResponse.success(raffle);
     return res.json(response);
   }
 
-  @httpPut('/:id', AuthMiddleware.validateToken(), Validate.withParams(RaffleUpdateDto))
+  @httpPut('/:id', AuthMiddleware.validateToken(), Validate.withParams(PaymentOptionUpdateDto))
   public async updateById(@request() req: Request, @response() res: express.Response) {
     const raffle = await this._raffleService.updateOne(req.body);
     const response = BaseHttpResponse.success(raffle);
     return res.json(response);
   }
 
-  @httpDelete('/:id', AuthMiddleware.validateToken(), Validate.withAll(RaffleDeleteDto))
+  @httpDelete('/:id', AuthMiddleware.validateToken(), Validate.withAll(PaymentOptionDeleteDto))
   public async deleteById(@request() req: Request, @response() res: express.Response) {
     const raffle = await this._raffleService.delete(req.body);
     const response = BaseHttpResponse.success(raffle);
