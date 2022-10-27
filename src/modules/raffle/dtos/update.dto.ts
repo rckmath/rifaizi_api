@@ -1,3 +1,4 @@
+import { IPaymentOption } from '@payment_option/paymentOption.interface';
 import { InvalidFieldException, MissingFieldException } from '@shared/errors';
 import { isValidUUID } from '@shared/utils';
 import { RaffleStatus } from '../raffle.enum';
@@ -17,7 +18,8 @@ export default class RaffleUpdateDto {
     public finishedAt?: Date,
     public prizeDrawAt?: Date,
     public startParticipationDt?: Date,
-    public limitParticipationDt?: Date
+    public limitParticipationDt?: Date,
+    public paymentOptions?: Array<IPaymentOption>
   ) {}
 
   static from(body: Partial<RaffleUpdateDto>) {
@@ -40,7 +42,8 @@ export default class RaffleUpdateDto {
       body.finishedAt,
       body.prizeDrawAt,
       body.startParticipationDt,
-      body.limitParticipationDt
+      body.limitParticipationDt,
+      body.paymentOptions
     );
   }
 }

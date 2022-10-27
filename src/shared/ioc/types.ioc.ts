@@ -1,13 +1,15 @@
 const TYPES = {
   IUserService: Symbol('IUserService'),
   IPriceService: Symbol('IPriceService'),
-  IProductService: Symbol('IProductService'),
   IRaffleService: Symbol('IRaffleService'),
+  IProductService: Symbol('IProductService'),
+  IPaymentOptionService: Symbol('IPaymentOptionService'),
   IUserRepository: Symbol('IUserRepository'),
   IPriceRepository: Symbol('IPriceRepository'),
+  IRaffleRepository: Symbol('IRaffleRepository'),
   IProductRepository: Symbol('IProductRepository'),
   IPriceRateRepository: Symbol('IPriceRateRepository'),
-  IRaffleRepository: Symbol('IRaffleRepository'),
+  IPaymentOptionRepository: Symbol('IPaymentOptionRepository'),
 };
 
 export { TYPES };

@@ -1,9 +1,9 @@
 import { injectable } from 'inversify';
 
 import { db as _db } from '@database/index';
+import { Prisma } from '@prisma/client';
 
 import { IRaffleRepository, IRaffle } from './raffle.interface';
-import { Prisma } from '@prisma/client';
 import { RaffleCreateDto, RaffleFindManyDto, RaffleUpdateDto } from './dtos';
 import { RaffleListingFilter } from './raffle.enum';
 
@@ -27,7 +27,19 @@ export class RaffleRepository implements IRaffleRepository {
         prizeDrawAt: item.prizeDrawAt,
         startParticipationDt: item.startParticipationDt,
         limitParticipationDt: item.limitParticipationDt,
+
+        paymentOptions: item.paymentOptions?.length
+          ? {
+              createMany: {
+                data: item.paymentOptions.map((paymentOption) => ({
+                  userId: paymentOption.ownerId,
+                  paymentOptionId: paymentOption.id,
+                })),
+              },
+            }
+          : undefined,
       },
+      include: { paymentOptions: { include: { paymentOption: true } } },
     });
 
     return raffle;
@@ -52,6 +64,17 @@ export class RaffleRepository implements IRaffleRepository {
         prizeDrawAt: item.prizeDrawAt,
         startParticipationDt: item.startParticipationDt,
         limitParticipationDt: item.limitParticipationDt,
+
+        paymentOptions: item.paymentOptions?.length
+          ? {
+              createMany: {
+                data: item.paymentOptions.map((paymentOption) => ({
+                  userId: paymentOption.ownerId,
+                  paymentOptionId: paymentOption.id,
+                })),
+              },
+            }
+          : undefined,
       },
     });
   }
@@ -78,7 +101,7 @@ export class RaffleRepository implements IRaffleRepository {
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: { gte: searchParameters.fromDate, lte: searchParameters.toDate },
       },
-      ...(searchParameters.includeDetails && { include: { owner: true } }),
+      ...(searchParameters.includeDetails && { include: { owner: true, paymentOptions: { include: { paymentOption: true } } } }),
     });
 
     return raffles;
@@ -111,7 +134,7 @@ export class RaffleRepository implements IRaffleRepository {
   async findOne(id: string): Promise<IRaffle | null> {
     return _db.raffle.findUnique({
       where: { id },
-      include: { owner: true },
+      include: { owner: true, paymentOptions: { include: { paymentOption: true } } },
     });
   }
 }

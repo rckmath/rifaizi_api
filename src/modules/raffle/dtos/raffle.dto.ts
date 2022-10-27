@@ -1,10 +1,13 @@
 import { UserDto } from '@user/dtos';
+import { PaymentOptionDto } from '@payment_option/dtos';
+
 import { RaffleStatus } from '../raffle.enum';
 import { IRaffle } from '../raffle.interface';
 
 export default class RaffleDto {
   constructor(
     public readonly id: string,
+    public readonly numericId: number,
     public readonly ownerId: string,
     public readonly title: string,
     public readonly description: string,
@@ -21,6 +24,7 @@ export default class RaffleDto {
     public readonly createdAt: Date,
     public readonly updatedAt?: Date,
     public readonly owner?: UserDto | null,
+    public readonly paymentOptions?: Array<PaymentOptionDto>,
     public readonly ownerName?: string | null
   ) {}
 
@@ -28,8 +32,13 @@ export default class RaffleDto {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
     const ownerName = owner?.name;
 
+    const paymentOptions = raffle.paymentOptions?.length
+      ? PaymentOptionDto.fromMany(raffle.paymentOptions.map((x) => x.paymentOption))
+      : [];
+
     return new RaffleDto(
       raffle.id,
+      raffle.numericId,
       raffle.ownerId,
       raffle.title,
       raffle.description,
@@ -46,6 +55,7 @@ export default class RaffleDto {
       raffle.createdAt,
       raffle.updatedAt,
       reqUserId === owner?.id ? owner : null,
+      paymentOptions,
       ownerName
     );
   }
@@ -54,8 +64,13 @@ export default class RaffleDto {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
     const ownerName = owner?.name;
 
+    const paymentOptions = raffle.paymentOptions?.length
+      ? PaymentOptionDto.fromMany(raffle.paymentOptions.map((x) => x.paymentOption))
+      : [];
+
     return new RaffleDto(
       raffle.id,
+      raffle.numericId,
       raffle.ownerId,
       raffle.title,
       raffle.description,
@@ -72,6 +87,7 @@ export default class RaffleDto {
       raffle.createdAt,
       raffle.updatedAt,
       owner,
+      paymentOptions,
       ownerName
     );
   }

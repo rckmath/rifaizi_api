@@ -3,8 +3,21 @@ import { Prisma } from '@prisma/client';
 import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto } from './dtos';
 import { RaffleStatus } from './raffle.enum';
 
+import { IPaymentOption } from '@payment_option/paymentOption.interface';
+
+export interface IRafflePaymentOption {
+  id: string;
+  userId: string;
+  raffleId: string;
+  paymentOptionId: string;
+
+  paymentOption: IPaymentOption;
+}
+
 export interface IRaffle {
   id: string;
+  numericId: number;
+
   ownerId: string;
   title: string;
   description: string;
@@ -25,6 +38,7 @@ export interface IRaffle {
   limitParticipationDt: Date | null;
 
   owner?: IUser | null;
+  paymentOptions?: Array<IRafflePaymentOption>;
 }
 
 export interface IRaffleService {

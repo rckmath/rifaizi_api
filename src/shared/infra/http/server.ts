@@ -7,8 +7,9 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import { Router, errorHandlerMiddleware } from './api';
 
 import '@user/user.controller';
-import '@dashboard/dashboard.controller';
 import '@raffle/raffle.controller';
+import '@dashboard/dashboard.controller';
+import '@payment_option/paymentOption.controller';
 
 export default class Server {
   private readonly _server: InversifyExpressServer;
