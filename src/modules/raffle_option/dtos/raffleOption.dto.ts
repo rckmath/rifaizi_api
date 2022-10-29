@@ -15,12 +15,14 @@ export default class RaffleOptionDto {
     public readonly createdAt: Date,
     public readonly updatedAt?: Date,
     public readonly owner?: UserDto | null,
-    public readonly ownerName?: string | null
+    public readonly ownerName?: string | null,
+    public readonly ownerPhone?: string | null
   ) {}
 
   static from(option: IRaffleOption, reqUserId?: string) {
     const owner = option.owner ? UserDto.from(option.owner) : null;
-    const ownerName = owner?.name;
+    const ownerName = owner?.name || option.ownerName;
+    const ownerPhone = owner?.phone || option.ownerPhone;
 
     return new RaffleOptionDto(
       option.id,
@@ -33,7 +35,8 @@ export default class RaffleOptionDto {
       option.createdAt,
       option.updatedAt,
       reqUserId === owner?.id ? owner : null,
-      ownerName
+      ownerName,
+      ownerPhone
     );
   }
 

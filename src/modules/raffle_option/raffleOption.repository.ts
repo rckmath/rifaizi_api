@@ -12,6 +12,8 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
       where: { id },
       data: {
         ownerId: item.ownerId,
+        ownerName: item.ownerName,
+        ownerPhone: item.ownerPhone,
         alias: item.alias,
         status: item.status,
         statusChangedAt: item.statusChangedAt,
@@ -46,6 +48,7 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
       },
       where: {
         alias: { search: searchParameters.alias },
+        ownerPhone: { contains: searchParameters.ownerPhone },
         num: { equals: searchParameters.num ? searchParameters.num : undefined },
         raffleId: { in: searchParameters.raffleId?.length ? searchParameters.raffleId : undefined },
         ownerId: { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined },
@@ -65,6 +68,7 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
       },
       where: {
         alias: { search: searchParameters.alias },
+        ownerPhone: { contains: searchParameters.ownerPhone },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
         ownerId: { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined },
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },

@@ -6,8 +6,11 @@ import { IRaffle } from '@raffle/raffle.interface';
 
 export interface IRaffleOption {
   id: string;
-  ownerId: string | null;
   raffleId: string;
+
+  ownerId: string | null;
+  ownerName: string | null;
+  ownerPhone: string | null;
 
   num: number;
   alias: string;

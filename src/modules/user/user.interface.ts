@@ -9,8 +9,8 @@ export interface IAuth {
 }
 
 export interface IAuthOptions {
-  setUserIdInBody?: boolean,
-  allowNoLoginRequest?: boolean,
+  setUserIdInBody?: boolean;
+  allowNoLoginRequest?: boolean;
 }
 
 export interface IUser {
@@ -18,6 +18,7 @@ export interface IUser {
   firebaseId: string;
   name: string;
   email: string;
+  phone: string | null;
   role: UserRoleType;
   createdAt: Date;
   updatedAt: Date;

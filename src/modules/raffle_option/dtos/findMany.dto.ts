@@ -21,6 +21,7 @@ export default class RaffleOptionFindManyDto extends BaseFindManyDto {
     public ownerId?: string | Array<string>,
     public num?: number,
     public alias?: string,
+    public ownerPhone?: string,
     public status?: RaffleOptionIndicator | Array<RaffleOptionIndicator>
   ) {
     super(page, pageSize, orderBy, orderDescending, fromDate, toDate, reqAuthData);
@@ -64,6 +65,7 @@ export default class RaffleOptionFindManyDto extends BaseFindManyDto {
       body.ownerId,
       body.num,
       body.alias,
+      body.ownerPhone,
       body.status
     );
   }

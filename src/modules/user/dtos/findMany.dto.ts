@@ -14,6 +14,7 @@ export default class UserFindManyDto extends BaseFindManyDto {
     public paginate: boolean = true,
     public readonly name?: string,
     public readonly email?: string,
+    public readonly phone?: string,
     public readonly id?: string | Array<string>,
     public readonly role?: UserRoleType | Array<UserRoleType>
   ) {
@@ -45,6 +46,7 @@ export default class UserFindManyDto extends BaseFindManyDto {
       body.paginate,
       body.name,
       body.email,
+      body.phone,
       id,
       role
     );
