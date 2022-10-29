@@ -1,5 +1,8 @@
-import { IPaymentOption } from '@payment_option/paymentOption.interface';
 import { MissingFieldException } from '@shared/errors';
+
+import { RaffleOptionCreateDto } from '@raffle_option/dtos';
+import { IPaymentOption } from '@payment_option/paymentOption.interface';
+
 import { RaffleStatus } from '../raffle.enum';
 
 export default class RaffleCreateDto {
@@ -17,7 +20,8 @@ export default class RaffleCreateDto {
     public readonly prizeDrawAt?: Date,
     public readonly startParticipationDt?: Date,
     public readonly limitParticipationDt?: Date,
-    public readonly paymentOptions?: Array<IPaymentOption>
+    public readonly paymentOptions?: Array<IPaymentOption>,
+    public options?: Array<RaffleOptionCreateDto>
   ) {}
 
   static from(body: Partial<RaffleCreateDto>) {

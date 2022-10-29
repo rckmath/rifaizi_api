@@ -13,13 +13,14 @@ import {
 } from 'inversify-express-utils';
 
 import { TYPES } from '@shared/ioc/types.ioc';
+import AuthMiddleware from '@user/user.middleware';
 
 import { IRaffleService } from './raffle.interface';
 import { RaffleCreateDto, RaffleFindOneDto, RaffleDeleteDto, RaffleFindManyDto, RaffleDto, RaffleUpdateDto } from './dtos';
 
 import { BaseHttpResponse, Request, Validate } from '@http/api';
 import { BasePaginationDto } from '@http/dto';
-import AuthMiddleware from '@user/user.middleware';
+import { RaffleOptionUpdateDto } from '@raffle_option/dtos';
 
 @controller('/raffle')
 export class RaffleController extends BaseHttpController implements Controller {
@@ -30,6 +31,13 @@ export class RaffleController extends BaseHttpController implements Controller {
   @httpPost('/', AuthMiddleware.validateToken(), Validate.with(RaffleCreateDto))
   public async create(@request() req: Request, @response() res: express.Response) {
     const createdRaffle = await this._raffleService.createOne(req.body);
+    const response = BaseHttpResponse.success(createdRaffle);
+    return res.json(response);
+  }
+
+  @httpPost('/:raffleId/option/:num', AuthMiddleware.validateToken(), Validate.withAll(RaffleOptionUpdateDto))
+  public async createParticipation(@request() req: Request, @response() res: express.Response) {
+    const createdRaffle = await this._raffleService.createParticipation(req.body);
     const response = BaseHttpResponse.success(createdRaffle);
     return res.json(response);
   }

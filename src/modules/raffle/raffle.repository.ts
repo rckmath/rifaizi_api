@@ -38,7 +38,10 @@ export class RaffleRepository implements IRaffleRepository {
               },
             }
           : undefined,
+
+        options: item.options?.length ? { createMany: { data: item.options } } : undefined,
       },
+
       include: { paymentOptions: { include: { paymentOption: true } } },
     });
 
@@ -134,7 +137,7 @@ export class RaffleRepository implements IRaffleRepository {
   async findOne(id: string): Promise<IRaffle | null> {
     return _db.raffle.findUnique({
       where: { id },
-      include: { owner: true, paymentOptions: { include: { paymentOption: true } } },
+      include: { owner: true, paymentOptions: { include: { paymentOption: true } }, options: true },
     });
   }
 }
