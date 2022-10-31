@@ -1,3 +1,4 @@
+import { RaffleOptionCreateDto } from '@raffle_option/dtos';
 import { IPaymentOption } from '@payment_option/paymentOption.interface';
 import { InvalidFieldException, MissingFieldException } from '@shared/errors';
 import { isValidUUID } from '@shared/utils';
@@ -19,7 +20,8 @@ export default class RaffleUpdateDto {
     public prizeDrawAt?: Date,
     public startParticipationDt?: Date,
     public limitParticipationDt?: Date,
-    public paymentOptions?: Array<IPaymentOption>
+    public paymentOptions?: Array<IPaymentOption>,
+    public options?: Array<RaffleOptionCreateDto>
   ) {}
 
   static from(body: Partial<RaffleUpdateDto>) {

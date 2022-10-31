@@ -53,7 +53,9 @@ export class RaffleService implements IRaffleService {
     }
   }
 
-  generateOptions(raffle: RaffleCreateDto): void {
+  generateOptions(raffle: RaffleCreateDto | RaffleUpdateDto): void {
+    if (!raffle.optionsQty || raffle.options?.length) return;
+
     const options: Array<RaffleOptionCreateDto> = [];
 
     for (let index = 1; index <= raffle.optionsQty; index++) {
@@ -105,6 +107,7 @@ export class RaffleService implements IRaffleService {
   async updateOne(raffle: RaffleUpdateDto): Promise<void> {
     const foundRaffle = await this._repository.findOne(raffle.id as string);
     if (!foundRaffle) throw new NotFoundException('Raffle');
+    if (!foundRaffle.options?.length) this.generateOptions(raffle);
     if (raffle.status && raffle.status !== foundRaffle.status) this.setNewStatusData(raffle.status, foundRaffle, raffle);
     return this._repository.update(raffle.id, raffle);
   }
