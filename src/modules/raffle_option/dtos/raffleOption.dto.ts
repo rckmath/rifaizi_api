@@ -42,7 +42,8 @@ export default class RaffleOptionDto {
 
   static fromAdmin(option: IRaffleOption) {
     const owner = option.owner ? UserDto.from(option.owner) : null;
-    const ownerName = owner?.name;
+    const ownerName = owner?.name || option.ownerName;
+    const ownerPhone = owner?.phone || option.ownerPhone;
 
     return new RaffleOptionDto(
       option.id,
@@ -55,7 +56,8 @@ export default class RaffleOptionDto {
       option.createdAt,
       option.updatedAt,
       owner,
-      ownerName
+      ownerName,
+      ownerPhone
     );
   }
 
