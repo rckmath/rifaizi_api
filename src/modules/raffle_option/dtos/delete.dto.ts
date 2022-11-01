@@ -2,12 +2,12 @@ import { BaseDeleteDto } from '@http/dto';
 import { InvalidFieldException, MissingFieldException } from '@shared/errors';
 import { isValidUUID } from '@shared/utils';
 
-export default class RaffleDeleteDto extends BaseDeleteDto {
+export default class RaffleOptionDeleteDto extends BaseDeleteDto {
   constructor(public readonly id: string | Array<string>) {
     super(id);
   }
 
-  static from(body: Partial<RaffleDeleteDto>) {
+  static from(body: Partial<RaffleOptionDeleteDto>) {
     let id: Array<string> = [];
 
     if (!body.id) throw new MissingFieldException('id');
@@ -17,6 +17,6 @@ export default class RaffleDeleteDto extends BaseDeleteDto {
       if (!isValidUUID(x)) throw new InvalidFieldException('id', x);
     });
 
-    return new RaffleDeleteDto(id);
+    return new RaffleOptionDeleteDto(id);
   }
 }

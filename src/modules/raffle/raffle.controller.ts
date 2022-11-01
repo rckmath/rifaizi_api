@@ -13,13 +13,14 @@ import {
 } from 'inversify-express-utils';
 
 import { TYPES } from '@shared/ioc/types.ioc';
+import AuthMiddleware from '@user/user.middleware';
 
 import { IRaffleService } from './raffle.interface';
 import { RaffleCreateDto, RaffleFindOneDto, RaffleDeleteDto, RaffleFindManyDto, RaffleDto, RaffleUpdateDto } from './dtos';
 
 import { BaseHttpResponse, Request, Validate } from '@http/api';
 import { BasePaginationDto } from '@http/dto';
-import AuthMiddleware from '@user/user.middleware';
+import { RaffleOptionUpdateDto } from '@raffle_option/dtos';
 
 @controller('/raffle')
 export class RaffleController extends BaseHttpController implements Controller {
@@ -34,9 +35,17 @@ export class RaffleController extends BaseHttpController implements Controller {
     return res.json(response);
   }
 
+  @httpPost('/:raffleId/participate', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withAll(RaffleOptionUpdateDto))
+  public async createParticipation(@request() req: Request, @response() res: express.Response) {
+    const createdRaffle = await this._raffleService.createParticipation(req.body);
+    const response = BaseHttpResponse.success(createdRaffle);
+    return res.json(response);
+  }
+
   @httpGet('/', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withQuery(RaffleFindManyDto))
   public async getWithPagination(@request() req: Request, @response() res: express.Response) {
     let response;
+
     const [raffles, raffleCount] = await Promise.all([
       this._raffleService.findMany(req.body),
       req.body.paginate ? this._raffleService.count(req.body) : undefined,
@@ -48,7 +57,7 @@ export class RaffleController extends BaseHttpController implements Controller {
     return res.json(response);
   }
 
-  @httpGet('/:id', AuthMiddleware.validateToken(), Validate.withParams(RaffleFindOneDto))
+  @httpGet('/:id', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withParams(RaffleFindOneDto))
   public async getById(@request() req: Request, @response() res: express.Response) {
     const raffle = await this._raffleService.findOne(req.body);
     const response = BaseHttpResponse.success(raffle);

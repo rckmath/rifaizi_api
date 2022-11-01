@@ -17,9 +17,11 @@ model User {
   id         String @id @default(uuid()) @db.Char(36)
   firebaseId String @unique
 
-  email String       @unique @db.VarChar(320)
-  name  String       @db.VarChar(100)
-  role  UserRoleType @default(COMMON)
+  email String  @unique @db.VarChar(320)
+  name  String  @db.VarChar(100)
+  phone String? @db.VarChar(15)
+
+  role UserRoleType @default(COMMON)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -27,6 +29,7 @@ model User {
 
   raffles        Raffle[]
   paymentOptions PaymentOption[]
+  participations RaffleOptionNumber[]
 }
 
 model Raffle {
@@ -58,7 +61,30 @@ model Raffle {
 
   paymentOptions RafflePaymentOption[]
 
-  owner User @relation(fields: [ownerId], references: [id])
+  owner   User                 @relation(fields: [ownerId], references: [id])
+  options RaffleOptionNumber[]
+}
+
+model RaffleOptionNumber {
+  id       String @id @default(uuid()) @db.Char(36)
+  raffleId String @db.Char(36)
+
+  ownerId    String? @db.Char(36)
+  ownerPhone String? @db.VarChar(15)
+  ownerName  String? @db.VarChar(100)
+
+  num    Int
+  alias  String
+  status RaffleOptionIndicator @default(AVAILABLE)
+
+  statusChangedAt DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  owner  User?  @relation(fields: [ownerId], references: [id])
+  raffle Raffle @relation(fields: [raffleId], references: [id])
 }
 
 model RafflePaymentOption {
@@ -89,6 +115,13 @@ model PaymentOption {
   raffles RafflePaymentOption[]
 
   owner User @relation(fields: [ownerId], references: [id])
+}
+
+enum RaffleOptionIndicator {
+  AVAILABLE
+  RESERVED
+  AWAITING_PAYMENT
+  OWNED
 }
 
 enum RaffleStatus {

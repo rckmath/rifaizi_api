@@ -1,9 +1,13 @@
-import { IUser } from '@user/user.interface';
 import { Prisma } from '@prisma/client';
+
 import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto } from './dtos';
 import { RaffleStatus } from './raffle.enum';
 
+import { IUser } from '@user/user.interface';
+import { IRaffleOption } from '@raffle_option/raffleOption.interface';
 import { IPaymentOption } from '@payment_option/paymentOption.interface';
+
+import { RaffleOptionCreateDto } from '@raffle_option/dtos';
 
 export interface IRafflePaymentOption {
   id: string;
@@ -39,10 +43,12 @@ export interface IRaffle {
 
   owner?: IUser | null;
   paymentOptions?: Array<IRafflePaymentOption>;
+  options?: Array<IRaffleOption>;
 }
 
 export interface IRaffleService {
   createOne(item: RaffleCreateDto): Promise<RaffleDto>;
+  createParticipation(item: RaffleOptionCreateDto): Promise<void>;
   findOne(item: RaffleFindOneDto): Promise<RaffleDto>;
   findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>>;
   updateOne(item: RaffleUpdateDto): Promise<void>;

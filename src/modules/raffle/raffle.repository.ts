@@ -38,7 +38,10 @@ export class RaffleRepository implements IRaffleRepository {
               },
             }
           : undefined,
+
+        options: item.options?.length ? { createMany: { data: item.options } } : undefined,
       },
+
       include: { paymentOptions: { include: { paymentOption: true } } },
     });
 
@@ -75,6 +78,8 @@ export class RaffleRepository implements IRaffleRepository {
               },
             }
           : undefined,
+
+        options: item.options?.length ? { createMany: { data: item.options } } : undefined,
       },
     });
   }
@@ -98,43 +103,72 @@ export class RaffleRepository implements IRaffleRepository {
             ? { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }
             : { notIn: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }),
         },
+
+        ...(searchParameters.listingFilter === RaffleListingFilter.PARTICIPATING && {
+          options: { some: { ownerId: { equals: searchParameters.ownerId as string } } },
+        }),
+
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: { gte: searchParameters.fromDate, lte: searchParameters.toDate },
       },
-      ...(searchParameters.includeDetails && { include: { owner: true, paymentOptions: { include: { paymentOption: true } } } }),
+      ...(searchParameters.includeDetails && {
+        include: {
+          owner: true,
+          paymentOptions: { include: { paymentOption: true } },
+          options: { select: { ownerId: true } },
+        },
+      }),
     });
 
     return raffles;
   }
 
   async count(searchParameters: RaffleFindManyDto): Promise<number> {
-    const raffleCount = await _db.raffle.count({
+    const raffleCount = await _db.raffle.findMany({
       orderBy: {
         [`${searchParameters.orderBy}`]: searchParameters.orderDescending ? 'desc' : 'asc',
       },
       where: {
         title: { search: searchParameters.title },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
+
         ownerId: {
           ...(searchParameters.listingFilter === RaffleListingFilter.MINE
             ? { in: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }
             : { notIn: searchParameters.ownerId?.length ? searchParameters.ownerId : undefined }),
         },
+
+        ...(searchParameters.listingFilter === RaffleListingFilter.PARTICIPATING && {
+          options: { some: { ownerId: { equals: searchParameters.ownerId as string } } },
+        }),
+
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: {
           gte: searchParameters.fromDate,
           lte: searchParameters.toDate,
         },
       },
+      select: {
+        title: true,
+        id: true,
+        ownerId: true,
+        status: true,
+        createdAt: true,
+        ...(searchParameters.listingFilter === RaffleListingFilter.PARTICIPATING && { options: { select: { ownerId: true } } }),
+      },
     });
 
-    return raffleCount;
+    return raffleCount.length;
   }
 
   async findOne(id: string): Promise<IRaffle | null> {
     return _db.raffle.findUnique({
       where: { id },
-      include: { owner: true, paymentOptions: { include: { paymentOption: true } } },
+      include: {
+        owner: true,
+        paymentOptions: { include: { paymentOption: true } },
+        options: { orderBy: { num: 'asc' }, include: { owner: true } },
+      },
     });
   }
 }

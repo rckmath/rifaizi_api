@@ -10,6 +10,7 @@ const TYPES = {
   IProductRepository: Symbol('IProductRepository'),
   IPriceRateRepository: Symbol('IPriceRateRepository'),
   IPaymentOptionRepository: Symbol('IPaymentOptionRepository'),
+  IRaffleOptionRepository: Symbol('IRaffleOptionRepository'),
 };
 
 export { TYPES };

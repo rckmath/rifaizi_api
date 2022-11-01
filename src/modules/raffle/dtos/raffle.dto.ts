@@ -3,6 +3,7 @@ import { PaymentOptionDto } from '@payment_option/dtos';
 
 import { RaffleStatus } from '../raffle.enum';
 import { IRaffle } from '../raffle.interface';
+import { RaffleOptionDto } from '@modules/raffle_option/dtos';
 
 export default class RaffleDto {
   constructor(
@@ -25,11 +26,13 @@ export default class RaffleDto {
     public readonly updatedAt?: Date,
     public readonly owner?: UserDto | null,
     public readonly paymentOptions?: Array<PaymentOptionDto>,
+    public readonly options?: Array<RaffleOptionDto>,
     public readonly ownerName?: string | null
   ) {}
 
   static from(raffle: IRaffle, reqUserId?: string) {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
+    const options = raffle.options?.length ? RaffleOptionDto.fromMany(raffle.options) : [];
     const ownerName = owner?.name;
 
     const paymentOptions = raffle.paymentOptions?.length
@@ -56,12 +59,14 @@ export default class RaffleDto {
       raffle.updatedAt,
       reqUserId === owner?.id ? owner : null,
       paymentOptions,
+      options,
       ownerName
     );
   }
 
   static fromAdmin(raffle: IRaffle) {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
+    const options = raffle.options?.length ? RaffleOptionDto.fromMany(raffle.options) : [];
     const ownerName = owner?.name;
 
     const paymentOptions = raffle.paymentOptions?.length
@@ -88,6 +93,7 @@ export default class RaffleDto {
       raffle.updatedAt,
       owner,
       paymentOptions,
+      options,
       ownerName
     );
   }
