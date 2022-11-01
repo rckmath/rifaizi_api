@@ -86,8 +86,6 @@ export class RaffleService implements IRaffleService {
   async createParticipation(option: RaffleOptionUpdateDto): Promise<void> {
     const foundOptions = await this._raffleOptionRepository.findByRaffle(option.raffleId as string, option.num);
 
-    console.log(option, foundOptions, Array.isArray(foundOptions));
-
     if (!foundOptions) throw new NotFoundException('RaffleOption');
 
     if (Array.isArray(foundOptions)) {
