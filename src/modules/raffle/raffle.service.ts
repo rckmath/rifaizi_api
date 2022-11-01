@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 
 import { TYPES } from '@shared/ioc/types.ioc';
-import { NotFoundException } from '@shared/errors';
+import { MissingFieldException, NotFoundException } from '@shared/errors';
 
 import { IRaffle, IRaffleRepository, IRaffleService } from './raffle.interface';
 import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleUpdateDto } from './dtos';
@@ -72,7 +72,13 @@ export class RaffleService implements IRaffleService {
   }
 
   async persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void> {
-    if (foundOption.status === RaffleOptionIndicator.AVAILABLE) option.status = RaffleOptionIndicator.RESERVED;
+    if (foundOption.status === RaffleOptionIndicator.AVAILABLE) {
+      if ((!option.ownerId && !option.ownerName && !option.ownerPhone) || !option.ownerId) {
+        throw new MissingFieldException('ownerName and ownerPhone or ownerId');
+      }
+
+      option.status = RaffleOptionIndicator.RESERVED;
+    }
     if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
     await this._raffleOptionRepository.update(foundOption.id, option);
   }
