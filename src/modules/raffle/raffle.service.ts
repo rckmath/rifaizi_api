@@ -71,6 +71,12 @@ export class RaffleService implements IRaffleService {
     raffle.options = options;
   }
 
+  async persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void> {
+    if (foundOption.status === RaffleOptionIndicator.AVAILABLE) option.status = RaffleOptionIndicator.RESERVED;
+    if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
+    await this._raffleOptionRepository.update(foundOption.id, option);
+  }
+
   async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
     this.generateOptions(raffle);
     const response = await this._repository.create(raffle);
@@ -78,10 +84,19 @@ export class RaffleService implements IRaffleService {
   }
 
   async createParticipation(option: RaffleOptionUpdateDto): Promise<void> {
-    const foundOption = (await this._raffleOptionRepository.findByRaffle(option.raffleId as string, option.num)) as IRaffleOption;
-    if (!foundOption) throw new NotFoundException('RaffleOption');
-    if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
-    await this._raffleOptionRepository.update(foundOption.id, option);
+    const foundOptions = await this._raffleOptionRepository.findByRaffle(option.raffleId as string, option.num);
+
+    console.log(option, foundOptions, Array.isArray(foundOptions));
+
+    if (!foundOptions) throw new NotFoundException('RaffleOption');
+
+    if (Array.isArray(foundOptions)) {
+      for (const foundOption of foundOptions) {
+        await this.persistParticipation(foundOption, option);
+      }
+    } else {
+      await this.persistParticipation(foundOptions, option);
+    }
   }
 
   async findOne(raffle: RaffleFindOneDto): Promise<RaffleDto> {

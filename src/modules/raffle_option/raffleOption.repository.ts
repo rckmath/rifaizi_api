@@ -11,7 +11,7 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
     await _db.raffleOptionNumber.update({
       where: { id },
       data: {
-        ownerId: item.ownerId,
+        ownerId: item.ownerId ? item.ownerId : undefined,
         ownerName: item.ownerName,
         ownerPhone: item.ownerPhone,
         alias: item.alias,
@@ -25,12 +25,12 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
     await _db.raffleOptionNumber.deleteMany({ where: { id: { in: idList } } });
   }
 
-  async findByRaffle(raffleId: string, num?: number): Promise<Array<IRaffleOption> | IRaffleOption | null> {
+  async findByRaffle(raffleId: string, num?: number | Array<number>): Promise<Array<IRaffleOption>> {
     let options;
 
     if (num) {
-      options = await _db.raffleOptionNumber.findFirst({
-        where: { raffleId, num: { equals: num ? num : undefined } },
+      options = await _db.raffleOptionNumber.findMany({
+        where: { raffleId, num: { ...(num && Array.isArray(num) ? { in: num } : { equals: num ? num : undefined }) } },
       });
     } else {
       options = await _db.raffleOptionNumber.findMany({ where: { raffleId } });

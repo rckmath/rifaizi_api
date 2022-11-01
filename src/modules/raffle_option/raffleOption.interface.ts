@@ -27,7 +27,7 @@ export interface IRaffleOption {
 
 export interface IRaffleOptionRepository {
   find(searchParameters: RaffleOptionFindManyDto): Promise<Array<IRaffleOption>>;
-  findByRaffle(raffleId: string, num?: number): Promise<Array<IRaffleOption> | IRaffleOption | null>;
+  findByRaffle(raffleId: string, num?: number | Array<number>): Promise<Array<IRaffleOption>>;
   findOne(id: IRaffleOption['id']): Promise<IRaffleOption | null>;
   update(id: string, item: RaffleOptionUpdateDto): Promise<void>;
   delete(idList: Array<string>): Promise<void>;

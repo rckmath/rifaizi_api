@@ -167,7 +167,7 @@ export class RaffleRepository implements IRaffleRepository {
       include: {
         owner: true,
         paymentOptions: { include: { paymentOption: true } },
-        options: { orderBy: { num: 'asc' } },
+        options: { orderBy: { num: 'asc' }, include: { owner: true } },
       },
     });
   }
