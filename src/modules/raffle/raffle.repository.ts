@@ -90,8 +90,6 @@ export class RaffleRepository implements IRaffleRepository {
   }
 
   async search(searchParameters: RaffleFindManyDto): Promise<Array<Partial<IRaffle>>> {
-    console.log(searchParameters);
-
     const raffles = await _db.raffle.findMany({
       skip: searchParameters.paginate ? searchParameters.skip : undefined,
       take: searchParameters.paginate ? searchParameters.pageSize : undefined,
