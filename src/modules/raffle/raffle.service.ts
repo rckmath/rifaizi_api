@@ -4,7 +4,7 @@ import { TYPES } from '@shared/ioc/types.ioc';
 import { MissingFieldException, NotFoundException } from '@shared/errors';
 
 import { IRaffle, IRaffleRepository, IRaffleService } from './raffle.interface';
-import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleUpdateDto } from './dtos';
+import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleSearchDto, RaffleUpdateDto } from './dtos';
 
 import { RaffleStatus } from './raffle.enum';
 import { UserRoleType } from '@user/user.enum';
@@ -109,6 +109,20 @@ export class RaffleService implements IRaffleService {
     const reqAuthData = raffle.reqAuthData;
     if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) return RaffleDto.fromAdmin(foundRaffle);
     return RaffleDto.from(foundRaffle, reqAuthData?.userId);
+  }
+
+  async search(searchParameters: RaffleFindManyDto): Promise<Array<RaffleSearchDto>> {
+    searchParameters.status = [
+      RaffleStatus.IN_PROGRESS,
+      RaffleStatus.TO_DRAW,
+      RaffleStatus.DRAWN,
+      RaffleStatus.DELIVERED,
+      RaffleStatus.CANCELED,
+    ];
+
+    const foundRaffles = await this._repository.search(searchParameters);
+
+    return RaffleSearchDto.fromMany(foundRaffles);
   }
 
   async findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>> {
