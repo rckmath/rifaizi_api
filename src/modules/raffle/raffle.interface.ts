@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto } from './dtos';
+import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto, RaffleSearchDto } from './dtos';
 import { RaffleStatus } from './raffle.enum';
 
 import { IUser } from '@user/user.interface';
@@ -50,6 +50,7 @@ export interface IRaffleService {
   createOne(item: RaffleCreateDto): Promise<RaffleDto>;
   createParticipation(item: RaffleOptionCreateDto): Promise<void>;
   findOne(item: RaffleFindOneDto): Promise<RaffleDto>;
+  search(searchParameters: RaffleFindManyDto): Promise<Array<RaffleSearchDto>>;
   findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>>;
   updateOne(item: RaffleUpdateDto): Promise<void>;
   delete(item: RaffleDeleteDto): Promise<void>;
@@ -59,6 +60,7 @@ export interface IRaffleService {
 export interface IRaffleRepository {
   create(item: RaffleCreateDto): Promise<IRaffle>;
   find(searchParameters: RaffleFindManyDto): Promise<Array<IRaffle>>;
+  search(searchParameters: RaffleFindManyDto): Promise<Array<Partial<IRaffle>>>;
   findOne(id: IRaffle['id']): Promise<IRaffle | null>;
   update(id: string, item: RaffleUpdateDto): Promise<void>;
   delete(idList: Array<string>): Promise<void>;

@@ -15,7 +15,8 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     reqAuthData?: IAuth,
     public paginate: boolean = true,
     public includeDetails: boolean = false,
-    public readonly title?: string,
+    public title?: string,
+    public numericId?: number,
     public id?: string | Array<string>,
     public ownerId?: string | Array<string>,
     public status?: RaffleStatus | Array<RaffleStatus>,
@@ -45,6 +46,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     body.fromDate = body.fromDate && new Date(body.fromDate);
     body.toDate = body.toDate && new Date(body.toDate);
 
+    if (body.numericId) body.numericId = parseInt(body.numericId as unknown as string, 10) || undefined;
     if (body.listingFilter && body.reqAuthData) body.ownerId = body.reqAuthData.userId;
 
     return new RaffleFindManyDto(
@@ -58,6 +60,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
       body.paginate,
       body.includeDetails,
       body.title,
+      body.numericId,
       body.id,
       body.ownerId,
       body.status,

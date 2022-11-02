@@ -57,6 +57,13 @@ export class RaffleController extends BaseHttpController implements Controller {
     return res.json(response);
   }
 
+  @httpGet('/search', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withQuery(RaffleFindManyDto))
+  public async getBySearch(@request() req: Request, @response() res: express.Response) {
+    const raffle = await this._raffleService.search(req.body);
+    const response = BaseHttpResponse.success(raffle);
+    return res.json(response);
+  }
+
   @httpGet('/:id', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withParams(RaffleFindOneDto))
   public async getById(@request() req: Request, @response() res: express.Response) {
     const raffle = await this._raffleService.findOne(req.body);

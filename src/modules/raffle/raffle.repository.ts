@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import { IRaffleRepository, IRaffle } from './raffle.interface';
 import { RaffleCreateDto, RaffleFindManyDto, RaffleUpdateDto } from './dtos';
 import { RaffleListingFilter } from './raffle.enum';
+import { onlyNumbers } from '@shared/utils';
 
 @injectable()
 export class RaffleRepository implements IRaffleRepository {
@@ -86,6 +87,32 @@ export class RaffleRepository implements IRaffleRepository {
 
   async delete(idList: Array<string>): Promise<void> {
     await _db.raffle.deleteMany({ where: { id: { in: idList } } });
+  }
+
+  async search(searchParameters: RaffleFindManyDto): Promise<Array<Partial<IRaffle>>> {
+    console.log(searchParameters);
+
+    const raffles = await _db.raffle.findMany({
+      skip: searchParameters.paginate ? searchParameters.skip : undefined,
+      take: searchParameters.paginate ? searchParameters.pageSize : undefined,
+      orderBy: {
+        [`${searchParameters.orderBy}`]: searchParameters.orderDescending ? 'desc' : 'asc',
+      },
+      where: {
+        AND: [
+          {
+            OR: [
+              { title: { contains: searchParameters.title && !onlyNumbers(searchParameters.title) ? searchParameters.title : undefined } },
+              { numericId: { equals: searchParameters.numericId ? searchParameters.numericId : undefined } },
+            ],
+          },
+          { status: { in: searchParameters.status?.length ? searchParameters.status : undefined } },
+        ],
+      },
+      select: { id: true, numericId: true, title: true, status: true },
+    });
+
+    return raffles;
   }
 
   async find(searchParameters: RaffleFindManyDto): Promise<Array<IRaffle>> {

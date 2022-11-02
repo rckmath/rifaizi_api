@@ -7,3 +7,7 @@ export const isValidUUID = (val: string | undefined | null): boolean => {
   if (!val) return false;
   return regexExp.test(val);
 };
+
+export const onlyNumbers = (str: string) => {
+  return /^[0-9]+$/.test(str);
+};
