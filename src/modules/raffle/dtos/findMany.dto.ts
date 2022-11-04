@@ -20,7 +20,7 @@ export default class RaffleFindManyDto extends BaseFindManyDto {
     public id?: string | Array<string>,
     public ownerId?: string | Array<string>,
     public status?: RaffleStatus | Array<RaffleStatus>,
-    public listingFilter?: RaffleListingFilter
+    public listingFilter?: RaffleListingFilter,
   ) {
     super(page, pageSize, orderBy, orderDescending, fromDate, toDate, reqAuthData);
   }

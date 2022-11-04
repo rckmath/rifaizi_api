@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 
 import { IRaffleRepository, IRaffle } from './raffle.interface';
 import { RaffleCreateDto, RaffleFindManyDto, RaffleUpdateDto } from './dtos';
-import { RaffleListingFilter } from './raffle.enum';
+import { RaffleListingFilter, RaffleStatus } from './raffle.enum';
 import { onlyNumbers } from '@shared/utils';
 
 @injectable()
@@ -114,6 +114,12 @@ export class RaffleRepository implements IRaffleRepository {
   }
 
   async find(searchParameters: RaffleFindManyDto): Promise<Array<IRaffle>> {
+    const carouselFiltering = [RaffleListingFilter.RECENT, RaffleListingFilter.TRENDING];
+
+    if (searchParameters.listingFilter && carouselFiltering.includes(searchParameters.listingFilter)) {
+      searchParameters.status = [RaffleStatus.IN_PROGRESS];
+    }
+
     const raffles = await _db.raffle.findMany({
       skip: searchParameters.paginate ? searchParameters.skip : undefined,
       take: searchParameters.paginate ? searchParameters.pageSize : undefined,
@@ -135,6 +141,13 @@ export class RaffleRepository implements IRaffleRepository {
 
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
         createdAt: { gte: searchParameters.fromDate, lte: searchParameters.toDate },
+
+        ...(searchParameters.listingFilter &&
+          carouselFiltering.includes(searchParameters.listingFilter) && {
+            finishedAt: { equals: null },
+            startParticipationDt: { lte: new Date() },
+            OR: [{ limitParticipationDt: { gte: new Date() } }, { limitParticipationDt: { equals: null } }],
+          }),
       },
       ...(searchParameters.includeDetails && {
         include: {
@@ -149,6 +162,12 @@ export class RaffleRepository implements IRaffleRepository {
   }
 
   async count(searchParameters: RaffleFindManyDto): Promise<number> {
+    const carouselFiltering = [RaffleListingFilter.RECENT, RaffleListingFilter.TRENDING];
+
+    if (searchParameters.listingFilter && carouselFiltering.includes(searchParameters.listingFilter)) {
+      searchParameters.status = [RaffleStatus.IN_PROGRESS];
+    }
+
     const raffleCount = await _db.raffle.findMany({
       orderBy: {
         [`${searchParameters.orderBy}`]: searchParameters.orderDescending ? 'desc' : 'asc',
@@ -168,10 +187,14 @@ export class RaffleRepository implements IRaffleRepository {
         }),
 
         status: { in: searchParameters.status?.length ? searchParameters.status : undefined },
-        createdAt: {
-          gte: searchParameters.fromDate,
-          lte: searchParameters.toDate,
-        },
+        createdAt: { gte: searchParameters.fromDate, lte: searchParameters.toDate },
+
+        ...(searchParameters.listingFilter &&
+          carouselFiltering.includes(searchParameters.listingFilter) && {
+            finishedAt: { equals: null },
+            startParticipationDt: { lte: new Date() },
+            OR: [{ limitParticipationDt: { gte: new Date() } }, { limitParticipationDt: { equals: null } }],
+          }),
       },
       select: {
         title: true,
