@@ -18,7 +18,7 @@ export default class RaffleCreateDto {
     public optionsQty: number,
     public readonly finishedAt?: Date,
     public readonly prizeDrawAt?: Date,
-    public readonly startParticipationDt?: Date,
+    public startParticipationDt?: Date,
     public readonly limitParticipationDt?: Date,
     public readonly paymentOptions?: Array<IPaymentOption>,
     public options?: Array<RaffleOptionCreateDto>

@@ -73,7 +73,7 @@ export class RaffleService implements IRaffleService {
 
   async persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void> {
     if (foundOption.status === RaffleOptionIndicator.AVAILABLE) {
-      if ((!option.ownerId && !option.ownerName && !option.ownerPhone) || !option.ownerId) {
+      if (!option.ownerId && !option.ownerName && !option.ownerPhone) {
         throw new MissingFieldException('ownerName and ownerPhone or ownerId');
       }
 
@@ -85,6 +85,7 @@ export class RaffleService implements IRaffleService {
 
   async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
     this.generateOptions(raffle);
+    if (raffle.status !== RaffleStatus.CREATED && !raffle.startParticipationDt) raffle.startParticipationDt = new Date();
     const response = await this._repository.create(raffle);
     return this.findOne({ id: response.id });
   }
