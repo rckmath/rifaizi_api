@@ -32,7 +32,7 @@ export interface IPaymentOptionService {
   createOne(item: PaymentOptionCreateDto): Promise<PaymentOptionDto>;
   findOne(item: PaymentOptionFindOneDto): Promise<PaymentOptionDto>;
   findMany(searchParameters: PaymentOptionFindManyDto): Promise<Array<PaymentOptionDto>>;
-  updateOne(item: PaymentOptionUpdateDto): Promise<void>;
+  updateOne(item: PaymentOptionUpdateDto, userId: string): Promise<void>;
   delete(item: PaymentOptionDeleteDto): Promise<void>;
   count(searchParameters: PaymentOptionFindManyDto): Promise<number>;
 }
@@ -42,6 +42,7 @@ export interface IPaymentOptionRepository {
   find(searchParameters: PaymentOptionFindManyDto): Promise<Array<IPaymentOption>>;
   findOne(id: IPaymentOption['id']): Promise<IPaymentOption | null>;
   update(id: string, item: PaymentOptionUpdateDto): Promise<void>;
+  removeDefault(userId: string): Promise<void>;
   delete(idList: Array<string>): Promise<void>;
   count(searchParameters: PaymentOptionFindManyDto): Promise<number>;
 }

@@ -38,6 +38,20 @@ export class PaymentOptionRepository implements IPaymentOptionRepository {
     });
   }
 
+  async removeDefault(userId: string): Promise<void> {
+    const foundPaymentOption = await _db.paymentOption.findFirst({
+      where: { default: true, ownerId: userId },
+      select: { id: true, default: true },
+    });
+
+    if (foundPaymentOption) {
+      await _db.paymentOption.update({
+        where: { id: foundPaymentOption.id },
+        data: { default: false },
+      });
+    }
+  }
+
   async delete(idList: Array<string>): Promise<void> {
     await _db.paymentOption.deleteMany({ where: { id: { in: idList } } });
   }

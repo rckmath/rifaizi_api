@@ -14,12 +14,18 @@ export class UserService implements IUserService {
   constructor(@inject(TYPES.IUserRepository) private readonly _repository: IUserRepository) {}
   async createUserOnFirebase(user: UserCreateDto): Promise<string> {
     let firebaseUserId = null;
+    let formattedPhoneNumber;
 
     try {
+      if (user.phone) {
+        formattedPhoneNumber = '+55' + user.phone.replace('(', '').replace(')', '').replace('-', '').replace(' ', '').trim();
+      }
+
       const firebaseUser = await FirebaseClient.auth().createUser({
         email: user.email,
         displayName: user.name,
         password: user.password,
+        phoneNumber: formattedPhoneNumber,
       });
 
       if (!firebaseUser) {
@@ -32,6 +38,16 @@ export class UserService implements IUserService {
     }
 
     return firebaseUserId;
+  }
+
+  async updateUserOnFirebase(firebaseId: string, user: UserUpdateDto): Promise<void> {
+    let formattedPhoneNumber;
+
+    if (user.phone) {
+      formattedPhoneNumber = '+55' + user.phone.replace('(', '').replace(')', '').replace('-', '').replace(' ', '').trim();
+    }
+
+    await FirebaseClient.auth().updateUser(firebaseId, { displayName: user.name, phoneNumber: formattedPhoneNumber });
   }
 
   async createOne(user: UserCreateDto): Promise<UserDto> {
@@ -55,13 +71,14 @@ export class UserService implements IUserService {
     return this._repository.count(searchParameters);
   }
 
-  async updateOne(item: UserUpdateDto): Promise<void> {
-    await this.findOne({ id: item.id });
-    return this._repository.update(item.id, item);
+  async updateOne(user: UserUpdateDto): Promise<void> {
+    const userData = await this._repository.findOne({ id: user.id });
+    if (userData?.firebaseId) await this.updateUserOnFirebase(userData?.firebaseId, user);
+    return this._repository.update(user.id, user);
   }
 
-  async delete(item: UserDeleteDto): Promise<void> {
-    const idList = item.id as Array<string>;
+  async delete(user: UserDeleteDto): Promise<void> {
+    const idList = user.id as Array<string>;
     const userList = await Promise.all(idList.map(async (id) => this._repository.findOne({ id })));
     if (!userList.length) return;
     const firebasePromises = userList.map(async (user) => user && FirebaseClient.auth().deleteUser(user.firebaseId));
