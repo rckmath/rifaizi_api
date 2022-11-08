@@ -43,9 +43,10 @@ export class PaymentOptionService implements IPaymentOptionService {
     return this._repository.count(searchParameters);
   }
 
-  async updateOne(paymentOption: PaymentOptionUpdateDto): Promise<void> {
+  async updateOne(paymentOption: PaymentOptionUpdateDto, userId: string): Promise<void> {
     const foundPaymentOption = await this._repository.findOne(paymentOption.id as string);
     if (!foundPaymentOption) throw new NotFoundException('PaymentOption');
+    if (paymentOption.isDefault) await this._repository.removeDefault(userId);
     return this._repository.update(paymentOption.id, paymentOption);
   }
 
