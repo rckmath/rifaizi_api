@@ -11,6 +11,7 @@ export interface IRaffleOption {
   ownerId: string | null;
   ownerName: string | null;
   ownerPhone: string | null;
+  paymentVoucher: string | null;
 
   num: number;
   alias: string;

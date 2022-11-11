@@ -5,6 +5,7 @@ export default class RaffleOptionCreateDto {
   constructor(
     public readonly num: number,
     public alias: string,
+    public readonly paymentVoucher?: string,
     public readonly status: RaffleOptionIndicator = RaffleOptionIndicator.AVAILABLE
   ) {}
 
@@ -12,6 +13,6 @@ export default class RaffleOptionCreateDto {
     if (!body.alias) body.alias = '';
     if (!body.num) throw new MissingFieldException('num');
     if (!body.status) throw new MissingFieldException('status');
-    return new RaffleOptionCreateDto(body.num, body.alias, body.status);
+    return new RaffleOptionCreateDto(body.num, body.alias, body.paymentVoucher, body.status);
   }
 }

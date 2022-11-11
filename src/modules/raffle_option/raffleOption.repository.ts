@@ -14,6 +14,7 @@ export class RaffleOptionRepository implements IRaffleOptionRepository {
         ownerId: item.ownerId ? item.ownerId : undefined,
         ownerName: item.ownerName,
         ownerPhone: item.ownerPhone,
+        paymentVoucher: item.paymentVoucher,
         alias: item.alias,
         status: item.status,
         statusChangedAt: item.statusChangedAt,
