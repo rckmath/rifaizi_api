@@ -7,7 +7,7 @@ import { IUser } from '@user/user.interface';
 import { IRaffleOption } from '@raffle_option/raffleOption.interface';
 import { IPaymentOption } from '@payment_option/paymentOption.interface';
 
-import { RaffleOptionCreateDto } from '@raffle_option/dtos';
+import { RaffleOptionCreateDto, RaffleOptionUpdateDto } from '@raffle_option/dtos';
 
 export interface IRafflePaymentOption {
   id: string;
@@ -49,6 +49,8 @@ export interface IRaffle {
 export interface IRaffleService {
   createOne(item: RaffleCreateDto): Promise<RaffleDto>;
   createParticipation(item: RaffleOptionCreateDto): Promise<void>;
+  persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void>;
+  updateParticipation(item: RaffleOptionUpdateDto): Promise<void>;
   findOne(item: RaffleFindOneDto): Promise<RaffleDto>;
   search(searchParameters: RaffleFindManyDto): Promise<Array<RaffleSearchDto>>;
   findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>>;
