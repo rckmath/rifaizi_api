@@ -10,6 +10,7 @@ export default class RaffleOptionUpdateDto {
     public readonly ownerName?: string,
     public readonly ownerPhone?: string,
     public num?: number | Array<number>,
+    public readonly paymentVoucher?: string,
     public readonly alias?: string,
     public status?: RaffleOptionIndicator,
     public statusChangedAt?: Date
@@ -27,6 +28,7 @@ export default class RaffleOptionUpdateDto {
       body.ownerName,
       body.ownerPhone,
       body.num,
+      body.paymentVoucher,
       body.alias,
       body.status,
       body.statusChangedAt

@@ -14,6 +14,7 @@ export default class RaffleOptionDto {
     public readonly statusChangedAt: Date | null,
     public readonly createdAt: Date,
     public readonly updatedAt?: Date,
+    public readonly paymentVoucher?: string | null,
     public readonly owner?: UserDto | null,
     public readonly ownerName?: string | null,
     public readonly ownerPhone?: string | null
@@ -34,6 +35,7 @@ export default class RaffleOptionDto {
       option.statusChangedAt,
       option.createdAt,
       option.updatedAt,
+      option.paymentVoucher,
       reqUserId === owner?.id ? owner : null,
       ownerName,
       ownerPhone
@@ -55,6 +57,7 @@ export default class RaffleOptionDto {
       option.statusChangedAt,
       option.createdAt,
       option.updatedAt,
+      option.paymentVoucher,
       owner,
       ownerName,
       ownerPhone

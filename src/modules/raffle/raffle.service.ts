@@ -71,23 +71,24 @@ export class RaffleService implements IRaffleService {
     raffle.options = options;
   }
 
+  async updateParticipation(option: RaffleOptionUpdateDto): Promise<void> {
+    const foundOption = await this._raffleOptionRepository.findOne(option.id as string);
+    if (!foundOption) throw new NotFoundException('Raffle Participation');
+    await this.persistParticipation(foundOption, option);
+  }
+
   async persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void> {
     if (foundOption.status === RaffleOptionIndicator.AVAILABLE) {
       if (!option.ownerId && !option.ownerName && !option.ownerPhone) {
-        throw new MissingFieldException('ownerName and ownerPhone or ownerId');
+        throw new MissingFieldException('ownerName or ownerPhone or ownerId');
       }
 
       option.status = RaffleOptionIndicator.RESERVED;
     }
-    if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
-    await this._raffleOptionRepository.update(foundOption.id, option);
-  }
 
-  async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
-    this.generateOptions(raffle);
-    if (raffle.status !== RaffleStatus.CREATED && !raffle.startParticipationDt) raffle.startParticipationDt = new Date();
-    const response = await this._repository.create(raffle);
-    return this.findOne({ id: response.id });
+    if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
+
+    await this._raffleOptionRepository.update(foundOption.id, option);
   }
 
   async createParticipation(option: RaffleOptionUpdateDto): Promise<void> {
@@ -102,6 +103,13 @@ export class RaffleService implements IRaffleService {
     } else {
       await this.persistParticipation(foundOptions, option);
     }
+  }
+
+  async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
+    this.generateOptions(raffle);
+    if (raffle.status !== RaffleStatus.CREATED && !raffle.startParticipationDt) raffle.startParticipationDt = new Date();
+    const response = await this._repository.create(raffle);
+    return this.findOne({ id: response.id });
   }
 
   async findOne(raffle: RaffleFindOneDto): Promise<RaffleDto> {

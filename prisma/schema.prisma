@@ -73,6 +73,8 @@ model RaffleOptionNumber {
   ownerPhone String? @db.VarChar(15)
   ownerName  String? @db.VarChar(100)
 
+  paymentVoucher String?
+
   num    Int
   alias  String
   status RaffleOptionIndicator @default(AVAILABLE)

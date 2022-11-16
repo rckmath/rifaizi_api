@@ -37,8 +37,15 @@ export class RaffleController extends BaseHttpController implements Controller {
 
   @httpPost('/:raffleId/participate', AuthMiddleware.validateToken({ allowNoLoginRequest: true }), Validate.withAll(RaffleOptionUpdateDto))
   public async createParticipation(@request() req: Request, @response() res: express.Response) {
-    const createdRaffle = await this._raffleService.createParticipation(req.body);
-    const response = BaseHttpResponse.success(createdRaffle);
+    const createdParticipation = await this._raffleService.createParticipation(req.body);
+    const response = BaseHttpResponse.success(createdParticipation);
+    return res.json(response);
+  }
+
+  @httpPut('/:raffleId/participate/:id', AuthMiddleware.validateToken(), Validate.withAll(RaffleOptionUpdateDto))
+  public async updateParticipation(@request() req: Request, @response() res: express.Response) {
+    const updatedParticipation = await this._raffleService.updateParticipation(req.body);
+    const response = BaseHttpResponse.success(updatedParticipation);
     return res.json(response);
   }
 
