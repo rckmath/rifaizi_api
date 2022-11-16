@@ -8,12 +8,13 @@ export default class UserUpdateDto {
     public readonly name?: string,
     public readonly email?: string,
     public readonly role?: UserRoleType,
-    public readonly password?: string
+    public readonly password?: string,
+    public readonly phone?: string
   ) {}
 
   static from(body: Partial<UserUpdateDto>) {
     if (!body.id) throw new MissingFieldException('id');
     if (body.id && !isValidUUID(body.id)) throw new InvalidFieldException('id', body.id);
-    return new UserUpdateDto(body.id, body.name, body.email, body.role, body.password);
+    return new UserUpdateDto(body.id, body.name, body.email, body.role, body.password, body.phone);
   }
 }

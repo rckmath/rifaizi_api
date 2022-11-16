@@ -7,7 +7,7 @@ export const msToTime = (seconds: number) => {
   return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 };
 
-export const arraySplitter = <T>(val: T | string | string[] | undefined) => {
+export const arraySplitter = <T>(val: T | T[] | string | string[] | undefined) => {
   let toReturn: string[] | T[] = [];
   if (val && typeof val == 'string') toReturn = val.split(',');
   return toReturn as Array<T>;

@@ -3,7 +3,7 @@ import { InvalidFieldException, MissingFieldException } from '@shared/errors';
 import { isValidUUID } from '@shared/utils';
 
 export default class RaffleDeleteDto extends BaseDeleteDto {
-  constructor(public readonly id: string | Array<string>, public isBusinessesHours: boolean = false) {
+  constructor(public readonly id: string | Array<string>) {
     super(id);
   }
 
@@ -17,8 +17,6 @@ export default class RaffleDeleteDto extends BaseDeleteDto {
       if (!isValidUUID(x)) throw new InvalidFieldException('id', x);
     });
 
-    body.isBusinessesHours = body.isBusinessesHours && typeof body.isBusinessesHours == 'string' && JSON.parse(body.isBusinessesHours);
-
-    return new RaffleDeleteDto(id, body.isBusinessesHours);
+    return new RaffleDeleteDto(id);
   }
 }

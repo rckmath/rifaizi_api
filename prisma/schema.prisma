@@ -17,9 +17,11 @@ model User {
   id         String @id @default(uuid()) @db.Char(36)
   firebaseId String @unique
 
-  email String       @unique @db.VarChar(320)
-  name  String       @db.VarChar(100)
-  role  UserRoleType @default(COMMON)
+  email String  @unique @db.VarChar(320)
+  name  String  @db.VarChar(100)
+  phone String? @db.VarChar(15)
+
+  role UserRoleType @default(COMMON)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -27,10 +29,13 @@ model User {
 
   raffles        Raffle[]
   paymentOptions PaymentOption[]
+  participations RaffleOptionNumber[]
 }
 
 model Raffle {
-  id      String @id @default(uuid()) @db.Char(36)
+  id        String @id @default(uuid()) @db.Char(36)
+  numericId Int    @unique @default(autoincrement())
+
   ownerId String @db.Char(36)
 
   title       String
@@ -56,7 +61,32 @@ model Raffle {
 
   paymentOptions RafflePaymentOption[]
 
-  owner User @relation(fields: [ownerId], references: [id])
+  owner   User                 @relation(fields: [ownerId], references: [id])
+  options RaffleOptionNumber[]
+}
+
+model RaffleOptionNumber {
+  id       String @id @default(uuid()) @db.Char(36)
+  raffleId String @db.Char(36)
+
+  ownerId    String? @db.Char(36)
+  ownerPhone String? @db.VarChar(15)
+  ownerName  String? @db.VarChar(100)
+
+  paymentVoucher String?
+
+  num    Int
+  alias  String
+  status RaffleOptionIndicator @default(AVAILABLE)
+
+  statusChangedAt DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  owner  User?  @relation(fields: [ownerId], references: [id])
+  raffle Raffle @relation(fields: [raffleId], references: [id])
 }
 
 model RafflePaymentOption {
@@ -73,9 +103,12 @@ model PaymentOption {
   id      String @id @default(uuid()) @db.Char(36)
   ownerId String @db.Char(36)
 
-  key     String
-  type    PaymentType @default(PIX)
-  default Boolean     @default(false)
+  alias    String
+  key      String
+  fullName String
+  type     PaymentType     @default(PIX)
+  subType  PaymentSubType?
+  default  Boolean         @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -84,6 +117,13 @@ model PaymentOption {
   raffles RafflePaymentOption[]
 
   owner User @relation(fields: [ownerId], references: [id])
+}
+
+enum RaffleOptionIndicator {
+  AVAILABLE
+  RESERVED
+  AWAITING_PAYMENT
+  OWNED
 }
 
 enum RaffleStatus {
@@ -99,6 +139,13 @@ enum PaymentType {
   PIX
   BANK_ACCOUNT
   OTHER
+}
+
+enum PaymentSubType {
+  CPF_CNPJ
+  RANDOM_KEY
+  PHONE_NUMBER
+  EMAIL
 }
 
 enum UserRoleType {

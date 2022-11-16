@@ -30,6 +30,8 @@
       "@http/*": ["./src/shared/infra/http/*"],
       "@dashboard/*": ["./src/modules/dashboard/*"],
       "@database/*": ["./src/shared/infra/database/*"],
+      "@payment_option/*": ["./src/modules/payment_option/*"],
+      "@raffle_option/*": ["./src/modules/raffle_option/*"],
     },
     "rootDirs": [
       "./src",

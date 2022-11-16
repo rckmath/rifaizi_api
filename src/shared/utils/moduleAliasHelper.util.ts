@@ -18,4 +18,6 @@ moduleAlias.addAliases({
   '@http': path.join(files, `${prefix}/shared/infra/http`),
   '@dashboard': path.join(files, `${prefix}/modules/dashboard`),
   '@database': path.join(files, `${prefix}/shared/infra/database`),
+  '@payment_option': path.join(files, `${prefix}/modules/payment_option`),
+  '@raffle_option': path.join(files, `${prefix}/modules/raffle_option`),
 });

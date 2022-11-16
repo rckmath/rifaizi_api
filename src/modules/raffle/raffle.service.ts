@@ -1,17 +1,113 @@
 import { inject, injectable } from 'inversify';
 
-import { IRaffleRepository, IRaffleService } from './raffle.interface';
-import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleUpdateDto } from './dtos';
-
 import { TYPES } from '@shared/ioc/types.ioc';
-import { NotFoundException } from '@shared/errors';
-import { UserRoleType } from '@modules/user/user.enum';
+import { MissingFieldException, NotFoundException } from '@shared/errors';
+
+import { IRaffle, IRaffleRepository, IRaffleService } from './raffle.interface';
+import { RaffleCreateDto, RaffleDeleteDto, RaffleDto, RaffleFindManyDto, RaffleFindOneDto, RaffleSearchDto, RaffleUpdateDto } from './dtos';
+
+import { RaffleStatus } from './raffle.enum';
+import { UserRoleType } from '@user/user.enum';
+
+import { IRaffleOption, IRaffleOptionRepository } from '@raffle_option/raffleOption.interface';
+import { RaffleOptionCreateDto, RaffleOptionUpdateDto } from '@raffle_option/dtos';
+import { RaffleOptionIndicator } from '@raffle_option/raffleOption.enum';
 
 @injectable()
 export class RaffleService implements IRaffleService {
-  constructor(@inject(TYPES.IRaffleRepository) private readonly _repository: IRaffleRepository) {}
+  constructor(
+    @inject(TYPES.IRaffleRepository) private readonly _repository: IRaffleRepository,
+    @inject(TYPES.IRaffleOptionRepository) private readonly _raffleOptionRepository: IRaffleOptionRepository
+  ) {}
+
+  setNewStatusData(newStatus: RaffleStatus, foundRaffle: IRaffle, raffleUpdate: RaffleUpdateDto): void {
+    switch (foundRaffle.status) {
+      case RaffleStatus.CREATED:
+        if (newStatus === RaffleStatus.IN_PROGRESS) {
+          raffleUpdate.startParticipationDt = foundRaffle.startParticipationDt || new Date();
+        }
+        break;
+      case RaffleStatus.IN_PROGRESS:
+        if (newStatus === RaffleStatus.TO_DRAW) {
+          raffleUpdate.limitParticipationDt = foundRaffle.limitParticipationDt || new Date();
+        }
+        break;
+      case RaffleStatus.TO_DRAW:
+        if (newStatus === RaffleStatus.DRAWN) {
+          raffleUpdate.prizeDrawAt = foundRaffle.prizeDrawAt || new Date();
+        }
+        break;
+      case RaffleStatus.DRAWN:
+        break;
+      case RaffleStatus.DELIVERED:
+        break;
+      case RaffleStatus.CANCELED:
+        break;
+
+      default:
+        break;
+    }
+
+    if ([RaffleStatus.DELIVERED, RaffleStatus.CANCELED].includes(newStatus)) {
+      raffleUpdate.finishedAt = foundRaffle.finishedAt || new Date();
+    }
+  }
+
+  generateOptions(raffle: RaffleCreateDto | RaffleUpdateDto): void {
+    if (!raffle.optionsQty || raffle.options?.length) return;
+
+    const options: Array<RaffleOptionCreateDto> = [];
+
+    for (let index = 1; index <= raffle.optionsQty; index++) {
+      options.push(
+        RaffleOptionCreateDto.from({
+          alias: '',
+          num: index,
+          status: RaffleOptionIndicator.AVAILABLE,
+        })
+      );
+    }
+
+    raffle.options = options;
+  }
+
+  async updateParticipation(option: RaffleOptionUpdateDto): Promise<void> {
+    const foundOption = await this._raffleOptionRepository.findOne(option.id as string);
+    if (!foundOption) throw new NotFoundException('Raffle Participation');
+    await this.persistParticipation(foundOption, option);
+  }
+
+  async persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void> {
+    if (foundOption.status === RaffleOptionIndicator.AVAILABLE) {
+      if (!option.ownerId && !option.ownerName && !option.ownerPhone) {
+        throw new MissingFieldException('ownerName or ownerPhone or ownerId');
+      }
+
+      option.status = RaffleOptionIndicator.RESERVED;
+    }
+
+    if (option.status && foundOption.status !== option.status) option.statusChangedAt = new Date();
+
+    await this._raffleOptionRepository.update(foundOption.id, option);
+  }
+
+  async createParticipation(option: RaffleOptionUpdateDto): Promise<void> {
+    const foundOptions = await this._raffleOptionRepository.findByRaffle(option.raffleId as string, option.num);
+
+    if (!foundOptions) throw new NotFoundException('RaffleOption');
+
+    if (Array.isArray(foundOptions)) {
+      for (const foundOption of foundOptions) {
+        await this.persistParticipation(foundOption, option);
+      }
+    } else {
+      await this.persistParticipation(foundOptions, option);
+    }
+  }
 
   async createOne(raffle: RaffleCreateDto): Promise<RaffleDto> {
+    this.generateOptions(raffle);
+    if (raffle.status !== RaffleStatus.CREATED && !raffle.startParticipationDt) raffle.startParticipationDt = new Date();
     const response = await this._repository.create(raffle);
     return this.findOne({ id: response.id });
   }
@@ -19,15 +115,31 @@ export class RaffleService implements IRaffleService {
   async findOne(raffle: RaffleFindOneDto): Promise<RaffleDto> {
     const foundRaffle = await this._repository.findOne(raffle.id as string);
     if (!foundRaffle) throw new NotFoundException('Raffle');
-    return RaffleDto.from(foundRaffle);
+    const reqAuthData = raffle.reqAuthData;
+    if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) return RaffleDto.fromAdmin(foundRaffle);
+    return RaffleDto.from(foundRaffle, reqAuthData?.userId);
+  }
+
+  async search(searchParameters: RaffleFindManyDto): Promise<Array<RaffleSearchDto>> {
+    searchParameters.status = [
+      RaffleStatus.IN_PROGRESS,
+      RaffleStatus.TO_DRAW,
+      RaffleStatus.DRAWN,
+      RaffleStatus.DELIVERED,
+      RaffleStatus.CANCELED,
+    ];
+
+    const foundRaffles = await this._repository.search(searchParameters);
+
+    return RaffleSearchDto.fromMany(foundRaffles);
   }
 
   async findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>> {
     let removeSensitiveData = true;
-    const foundRaffles = await this._repository.find(searchParameters);
     const reqAuthData = searchParameters.reqAuthData;
     if (reqAuthData && reqAuthData.role === UserRoleType.ADMIN) removeSensitiveData = false;
-    return RaffleDto.fromMany(foundRaffles, removeSensitiveData);
+    const foundRaffles = await this._repository.find(searchParameters);
+    return RaffleDto.fromMany(foundRaffles, removeSensitiveData, reqAuthData?.userId);
   }
 
   async count(searchParameters: RaffleFindManyDto): Promise<number> {
@@ -35,7 +147,10 @@ export class RaffleService implements IRaffleService {
   }
 
   async updateOne(raffle: RaffleUpdateDto): Promise<void> {
-    await this.findOne({ id: raffle.id });
+    const foundRaffle = await this._repository.findOne(raffle.id as string);
+    if (!foundRaffle) throw new NotFoundException('Raffle');
+    if (!foundRaffle.options?.length) this.generateOptions(raffle);
+    if (raffle.status && raffle.status !== foundRaffle.status) this.setNewStatusData(raffle.status, foundRaffle, raffle);
     return this._repository.update(raffle.id, raffle);
   }
 

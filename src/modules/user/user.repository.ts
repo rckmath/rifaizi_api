@@ -14,6 +14,7 @@ export class UserRepository implements IUserRepository {
         email: item.email,
         firebaseId: item.firebaseId as string,
         role: item.role,
+        phone: item.phone,
       },
     });
   }
@@ -25,6 +26,7 @@ export class UserRepository implements IUserRepository {
         name: item.name,
         email: item.email,
         role: item.role ?? undefined,
+        phone: item.phone ?? undefined,
       },
     });
   }
@@ -43,6 +45,7 @@ export class UserRepository implements IUserRepository {
       where: {
         name: { contains: searchParameters.name },
         email: { contains: searchParameters.email },
+        phone: { contains: searchParameters.phone },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
         role: { in: searchParameters.role?.length ? searchParameters.role : undefined },
         createdAt: {
@@ -61,6 +64,7 @@ export class UserRepository implements IUserRepository {
       where: {
         name: { contains: searchParameters.name },
         email: { contains: searchParameters.email },
+        phone: { contains: searchParameters.phone },
         id: { in: searchParameters.id?.length ? searchParameters.id : undefined },
         role: { in: searchParameters.role?.length ? searchParameters.role : undefined },
         createdAt: {

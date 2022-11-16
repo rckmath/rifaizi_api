@@ -1,10 +1,14 @@
 import { UserDto } from '@user/dtos';
+import { PaymentOptionDto } from '@payment_option/dtos';
+
 import { RaffleStatus } from '../raffle.enum';
 import { IRaffle } from '../raffle.interface';
+import { RaffleOptionDto } from '@modules/raffle_option/dtos';
 
 export default class RaffleDto {
   constructor(
     public readonly id: string,
+    public readonly numericId: number,
     public readonly ownerId: string,
     public readonly title: string,
     public readonly description: string,
@@ -21,15 +25,23 @@ export default class RaffleDto {
     public readonly createdAt: Date,
     public readonly updatedAt?: Date,
     public readonly owner?: UserDto | null,
+    public readonly paymentOptions?: Array<PaymentOptionDto>,
+    public readonly options?: Array<RaffleOptionDto>,
     public readonly ownerName?: string | null
   ) {}
 
-  static from(raffle: IRaffle) {
+  static from(raffle: IRaffle, reqUserId?: string) {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
+    const options = raffle.options?.length ? RaffleOptionDto.fromMany(raffle.options) : [];
     const ownerName = owner?.name;
+
+    const paymentOptions = raffle.paymentOptions?.length
+      ? PaymentOptionDto.fromMany(raffle.paymentOptions.map((x) => x.paymentOption))
+      : [];
 
     return new RaffleDto(
       raffle.id,
+      raffle.numericId,
       raffle.ownerId,
       raffle.title,
       raffle.description,
@@ -45,17 +57,25 @@ export default class RaffleDto {
       raffle.limitParticipationDt,
       raffle.createdAt,
       raffle.updatedAt,
-      null,
+      reqUserId === owner?.id ? owner : null,
+      paymentOptions,
+      options,
       ownerName
     );
   }
 
   static fromAdmin(raffle: IRaffle) {
     const owner = raffle.owner ? UserDto.from(raffle.owner) : null;
+    const options = raffle.options?.length ? RaffleOptionDto.fromMany(raffle.options) : [];
     const ownerName = owner?.name;
+
+    const paymentOptions = raffle.paymentOptions?.length
+      ? PaymentOptionDto.fromMany(raffle.paymentOptions.map((x) => x.paymentOption))
+      : [];
 
     return new RaffleDto(
       raffle.id,
+      raffle.numericId,
       raffle.ownerId,
       raffle.title,
       raffle.description,
@@ -72,11 +92,13 @@ export default class RaffleDto {
       raffle.createdAt,
       raffle.updatedAt,
       owner,
+      paymentOptions,
+      options,
       ownerName
     );
   }
 
-  static fromMany(raffles: Array<IRaffle>, removeSensitiveData?: boolean) {
-    return raffles.map((raffle) => (removeSensitiveData ? RaffleDto.from(raffle) : RaffleDto.fromAdmin(raffle)));
+  static fromMany(raffles: Array<IRaffle>, removeSensitiveData?: boolean, reqUserId?: string) {
+    return raffles.map((raffle) => (removeSensitiveData ? RaffleDto.from(raffle, reqUserId) : RaffleDto.fromAdmin(raffle)));
   }
 }

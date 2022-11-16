@@ -9,6 +9,7 @@ export default class UserDto {
     public readonly email: string,
     public readonly role: UserRoleType,
     public readonly createdAt: Date,
+    public readonly phone?: string | null,
     public readonly updatedAt?: Date
   ) {}
 
@@ -18,7 +19,7 @@ export default class UserDto {
     if (!user.role) throw new MissingFieldException('role');
     if (!user.email) throw new MissingFieldException('email');
     if (!user.createdAt) throw new MissingFieldException('createdAt');
-    return new UserDto(user.id, user.name, user.email, user.role, user.createdAt, user.updatedAt);
+    return new UserDto(user.id, user.name, user.email, user.role, user.createdAt, user.phone, user.updatedAt);
   }
 
   static fromMany(users: Array<IUser>) {

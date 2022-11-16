@@ -7,8 +7,9 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import { Router, errorHandlerMiddleware } from './api';
 
 import '@user/user.controller';
-import '@dashboard/dashboard.controller';
 import '@raffle/raffle.controller';
+import '@dashboard/dashboard.controller';
+import '@payment_option/paymentOption.controller';
 
 export default class Server {
   private readonly _server: InversifyExpressServer;
@@ -21,12 +22,8 @@ export default class Server {
 
   private setConfig = (app: express.Application) => {
     app.use(cors());
-    app.use(
-      express.urlencoded({
-        extended: true,
-      })
-    );
-    app.use(express.json());
+    app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+    app.use(express.json({ limit: '50mb' }));
     app.use(helmet());
     app.use(Router);
   };

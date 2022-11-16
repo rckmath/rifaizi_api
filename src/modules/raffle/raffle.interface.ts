@@ -1,10 +1,27 @@
-import { IUser } from '@user/user.interface';
 import { Prisma } from '@prisma/client';
-import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto } from './dtos';
+
+import { RaffleCreateDto, RaffleFindManyDto, RaffleFindOneDto, RaffleDeleteDto, RaffleUpdateDto, RaffleDto, RaffleSearchDto } from './dtos';
 import { RaffleStatus } from './raffle.enum';
+
+import { IUser } from '@user/user.interface';
+import { IRaffleOption } from '@raffle_option/raffleOption.interface';
+import { IPaymentOption } from '@payment_option/paymentOption.interface';
+
+import { RaffleOptionCreateDto, RaffleOptionUpdateDto } from '@raffle_option/dtos';
+
+export interface IRafflePaymentOption {
+  id: string;
+  userId: string;
+  raffleId: string;
+  paymentOptionId: string;
+
+  paymentOption: IPaymentOption;
+}
 
 export interface IRaffle {
   id: string;
+  numericId: number;
+
   ownerId: string;
   title: string;
   description: string;
@@ -25,11 +42,17 @@ export interface IRaffle {
   limitParticipationDt: Date | null;
 
   owner?: IUser | null;
+  paymentOptions?: Array<IRafflePaymentOption>;
+  options?: Array<IRaffleOption>;
 }
 
 export interface IRaffleService {
   createOne(item: RaffleCreateDto): Promise<RaffleDto>;
+  createParticipation(item: RaffleOptionCreateDto): Promise<void>;
+  persistParticipation(foundOption: IRaffleOption, option: RaffleOptionUpdateDto): Promise<void>;
+  updateParticipation(item: RaffleOptionUpdateDto): Promise<void>;
   findOne(item: RaffleFindOneDto): Promise<RaffleDto>;
+  search(searchParameters: RaffleFindManyDto): Promise<Array<RaffleSearchDto>>;
   findMany(searchParameters: RaffleFindManyDto): Promise<Array<RaffleDto>>;
   updateOne(item: RaffleUpdateDto): Promise<void>;
   delete(item: RaffleDeleteDto): Promise<void>;
@@ -39,6 +62,7 @@ export interface IRaffleService {
 export interface IRaffleRepository {
   create(item: RaffleCreateDto): Promise<IRaffle>;
   find(searchParameters: RaffleFindManyDto): Promise<Array<IRaffle>>;
+  search(searchParameters: RaffleFindManyDto): Promise<Array<Partial<IRaffle>>>;
   findOne(id: IRaffle['id']): Promise<IRaffle | null>;
   update(id: string, item: RaffleUpdateDto): Promise<void>;
   delete(idList: Array<string>): Promise<void>;
