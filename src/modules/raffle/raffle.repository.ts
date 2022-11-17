@@ -31,15 +31,12 @@ export class RaffleRepository implements IRaffleRepository {
 
         paymentOptions: item.paymentOptions?.length
           ? {
-              createMany: {
-                data: item.paymentOptions.map((paymentOption) => ({
-                  userId: paymentOption.ownerId,
-                  paymentOptionId: paymentOption.id,
-                })),
-              },
+              create: item.paymentOptions.map((paymentOption) => ({
+                userId: paymentOption.ownerId,
+                paymentOptionId: paymentOption.id,
+              })),
             }
           : undefined,
-
         options: item.options?.length ? { createMany: { data: item.options } } : undefined,
       },
 
@@ -68,17 +65,6 @@ export class RaffleRepository implements IRaffleRepository {
         prizeDrawAt: item.prizeDrawAt,
         startParticipationDt: item.startParticipationDt,
         limitParticipationDt: item.limitParticipationDt,
-
-        paymentOptions: item.paymentOptions?.length
-          ? {
-              createMany: {
-                data: item.paymentOptions.map((paymentOption) => ({
-                  userId: paymentOption.ownerId,
-                  paymentOptionId: paymentOption.id,
-                })),
-              },
-            }
-          : undefined,
 
         options: item.options?.length ? { createMany: { data: item.options } } : undefined,
       },
